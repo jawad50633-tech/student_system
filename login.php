@@ -32,15 +32,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            /* Using your logo as a fixed background */
-            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
-                        url('Logo Web.jpg') no-repeat center center fixed;
+            background: linear-gradient(rgba(6, 11, 40, 0.8), rgba(6, 11, 40, 0.8)), 
+                url('https://images.unsplash.com/photo-1620712943543-bcc4628c9455?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
             background-size: cover;
             height: 100vh;
             display: flex;
             align-items: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
+            margin: 0;
+
         }
 
         /* Glassmorphism Effect */
