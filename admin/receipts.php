@@ -5,7 +5,7 @@ require_once '../includes/auth_check.php';
 $student_id = isset($_GET['student_id']) ? $_GET['student_id'] : null;
 $receipt_id = isset($_GET['print']) ? $_GET['print'] : null;
 
-// --- PART 1: PRINT VIEW (3 HORIZONTAL COPIES) ---
+// --- PART 1: PRINT VIEW (HORIZONTAL COPIES WITH STAMP SPACE) ---
 if ($receipt_id) {
     $stmt = $pdo->prepare("
         SELECT f.*, s.name as student_name, c.class_name 
@@ -29,10 +29,8 @@ if ($receipt_id) {
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
         <style>
-            /* Reset and typography */
             body { font-family: 'Inter', sans-serif; color: #000; background: #fff; margin: 0; padding: 0; }
             
-            /* Print-specific landscape orientation */
             @page { size: A4 landscape; margin: 5mm; }
             
             .no-print-nav { 
@@ -40,24 +38,24 @@ if ($receipt_id) {
                 text-align: center; border-bottom: 1px solid #ddd; 
             }
 
-            /* Main Horizontal Wrapper */
             .receipt-wrapper {
                 display: flex;
                 flex-direction: row;
                 justify-content: space-between;
-                gap: 10px;
+                gap: 15px;
                 padding: 10px;
                 width: 100%;
             }
 
-            /* Individual Receipt (1/3 of the width) */
             .receipt-box {
                 flex: 1;
                 border: 1.5px dashed #000;
-                padding: 15px;
+                padding: 20px;
                 background: #fff;
                 position: relative;
-                min-height: 180mm; /* Ensures they all have the same height */
+                min-height: 185mm; /* Standardized height */
+                display: flex;
+                flex-direction: column;
             }
 
             .copy-tag {
@@ -78,17 +76,23 @@ if ($receipt_id) {
             .amount-section {
                 background: #f9f9f9;
                 border: 1px solid #000;
-                padding: 8px;
+                padding: 10px;
                 margin-top: 15px;
                 text-align: center;
                 border-radius: 5px;
             }
-            .amount-text { font-size: 1.2rem; font-weight: 800; }
+            .amount-text { font-size: 1.3rem; font-weight: 800; }
 
-            .signature-area {
-                margin-top: 40px;
-                border-top: 1px solid #000;
-                font-size: 10px;
+            /* Pushed to the very bottom for stamp space */
+            .footer-signature {
+                margin-top: auto; 
+                padding-top: 60px; /* Large space for the manual stamp */
+            }
+
+            .signature-line {
+                border-top: 1.5px solid #000;
+                font-size: 11px;
+                font-weight: 700;
                 text-align: center;
                 padding-top: 5px;
             }
@@ -97,15 +101,13 @@ if ($receipt_id) {
                 .no-print-nav { display: none; }
                 body { background: #fff; }
                 .receipt-wrapper { padding: 0; gap: 5px; }
-                .receipt-box { border-color: #ccc; }
             }
         </style>
     </head>
     <body onload="window.print()">
         <div class="no-print-nav">
-            <button onclick="window.print()" class="btn btn-dark btn-sm">Print Now (Landscape)</button>
+            <button onclick="window.print()" class="btn btn-dark btn-sm">Print Slip (Landscape)</button>
             <a href="receipts.php?student_id=<?php echo $r['student_id']; ?>" class="btn btn-outline-secondary btn-sm">Back</a>
-            <p class="small text-muted mt-2 mb-0">Note: Please ensure printer settings are set to <b>Landscape</b> orientation.</p>
         </div>
 
         <div class="receipt-wrapper">
@@ -116,7 +118,7 @@ if ($receipt_id) {
                 <div class="header-section">
                     <img src="../uploads/Logo Web.png" class="logo-img">
                     <h1 class="academy-name">AI Future Leaders Academy</h1>
-                    <small style="font-size: 9px;">Official Fee Receipt</small>
+                    <small style="font-size: 9px;">Official Payment Receipt</small>
                 </div>
 
                 <div class="row mb-3">
@@ -141,21 +143,22 @@ if ($receipt_id) {
                 </div>
 
                 <div class="data-row">
-                    <span class="label">Payment For</span>
+                    <span class="label">Payment Description</span>
                     <span class="value"><?php echo $r['fee_type']; ?></span>
                 </div>
 
                 <div class="amount-section">
-                    <span class="label" style="color:#000;">Total Paid (PKR)</span>
+                    <span class="label" style="color:#000;">Net Amount Received (PKR)</span>
                     <div class="amount-text"><?php echo number_format($r['amount']); ?>/-</div>
                 </div>
 
-                <div class="signature-area">
-                    Authorized Signatory
-                </div>
-                
-                <div class="mt-4 text-center">
-                    <small style="font-size: 8px; color: #888;">This is a computer-generated receipt.</small>
+                <div class="footer-signature">
+                    <div class="signature-line">
+                        Authorized Stamp & Signature
+                    </div>
+                    <div class="text-center mt-2">
+                        <small style="font-size: 8px; color: #888;">Computer Generated | Secure System</small>
+                    </div>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -179,12 +182,12 @@ include '../includes/header.php';
         overflow: hidden; 
     }
     .table-head-dark { background: #000; color: #fff; }
-    .btn-action-print { background: #00d4ff; color: #000; font-weight: 700; border: none; }
+    .btn-generate { background: #00d4ff; color: #000; font-weight: 700; border: none; }
 </style>
 
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 style="font-weight: 800;">Student Ledgers</h2>
+        <h2 style="font-weight: 800; letter-spacing: -1px;">Payment Records</h2>
         <a href="fees.php" class="btn btn-outline-light rounded-pill px-4">← Back</a>
     </div>
 
@@ -194,9 +197,9 @@ include '../includes/header.php';
                 <thead class="table-head-dark">
                     <tr>
                         <th class="ps-4">Receipt #</th>
-                        <th>Type</th>
+                        <th>Fee Type</th>
                         <th>Amount</th>
-                        <th>Date</th>
+                        <th>Payment Date</th>
                         <th class="text-center">Action</th>
                     </tr>
                 </thead>
@@ -214,15 +217,15 @@ include '../includes/header.php';
                         <td class="fw-bold"><?php echo number_format($r['amount']); ?> PKR</td>
                         <td><?php echo date('d M, Y', strtotime($r['payment_date'])); ?></td>
                         <td class="text-center">
-                            <a href="receipts.php?print=<?php echo $r['id']; ?>" target="_blank" class="btn btn-sm btn-action-print px-3 rounded-pill">
-                                Generate 3-Copy Slip
+                            <a href="receipts.php?print=<?php echo $r['id']; ?>" target="_blank" class="btn btn-sm btn-generate px-4 rounded-pill">
+                                Generate Slip
                             </a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
                     
                     <?php if (empty($receipts)): ?>
-                        <tr><td colspan="5" class="text-center py-5 text-muted">No records found.</td></tr>
+                        <tr><td colspan="5" class="text-center py-5 text-muted">No records found for this ID.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
