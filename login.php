@@ -7,8 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            /* Path updated to your local uploads folder */
-            /* Added a slightly darker gradient overlay to make the glassmorphism pop */
             background: linear-gradient(rgba(6, 11, 40, 0.75), rgba(6, 11, 40, 0.75)), 
                         url('uploads/background.png') no-repeat center center fixed;
             background-size: cover;
