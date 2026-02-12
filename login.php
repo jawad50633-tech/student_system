@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="login-card">
         <div class="logo-container">
-            <img src="uploads\Logo_Web.png" alt="Logo">
+            <img src="uploads\Logo Web.png" alt="Logo">
             <h2 class="mt-3" style="font-weight: 300;">Academy Portal</h2>
             <p class="text-muted small">Empowering Minds for the Future</p>
         </div>
