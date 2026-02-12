@@ -20,151 +20,134 @@ include '../includes/header.php';
 ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
-    /* Professional Logo-Themed Color Palette */
     :root {
-        --deep-navy: #060b28;
+        --deep-black: #0a0a0a;
         --electric-cyan: #00d4ff;
         --royal-violet: #9d50bb;
-        --glass-white: rgba(255, 255, 255, 0.05);
-        --border-glow: rgba(0, 212, 255, 0.3);
+        /* Milky glass for better contrast with dark text */
+        --glass-bg: rgba(255, 255, 255, 0.85); 
     }
 
     body {
-        background: linear-gradient(rgba(6, 11, 40, 0.9), rgba(6, 11, 40, 0.9)), 
+        background: linear-gradient(rgba(6, 11, 40, 0.8), rgba(6, 11, 40, 0.8)), 
                     url('../uploads/background.png') no-repeat center center fixed;
         background-size: cover;
-        color: #ffffff;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
+        font-family: 'Inter', sans-serif;
+        color: var(--deep-black);
     }
 
-    .container { perspective: 1500px; }
+    /* 3D Container */
+    .dashboard-grid {
+        perspective: 2000px;
+    }
 
-    /* Professional 3D Card Styling */
     .stat-card {
-        background: var(--glass-white);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 2px solid rgba(255, 255, 255, 0.5);
         border-radius: 24px;
         padding: 2rem;
-        transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         transform-style: preserve-3d;
         height: 100%;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
     }
 
-    /* 3D Hover Effect */
+    /* Professional 3D Hover */
     .stat-card:hover {
-        transform: rotateX(7deg) rotateY(-7deg) translateY(-10px);
+        transform: rotateY(10deg) rotateX(5deg) translateZ(20px);
         border-color: var(--electric-cyan);
-        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.25);
-        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
     }
 
-    /* Card Content Depth */
-    .card-content { transform: translateZ(50px); }
-
-    .icon-glow {
-        width: 60px;
-        height: 60px;
-        border-radius: 16px;
+    .icon-box {
+        width: 55px;
+        height: 55px;
+        border-radius: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         margin-bottom: 20px;
-        background: rgba(0, 212, 255, 0.1);
-        border: 1px solid var(--electric-cyan);
-        box-shadow: 0 0 15px var(--border-glow);
-        color: var(--electric-cyan);
+        background: #fff;
+        border: 1px solid #ddd;
+        box-shadow: 4px 4px 10px rgba(0,0,0,0.05);
     }
 
-    .violet-glow {
-        background: rgba(157, 80, 187, 0.1);
-        border: 1px solid var(--royal-violet);
-        box-shadow: 0 0 15px rgba(157, 80, 187, 0.3);
-        color: var(--royal-violet);
-    }
-
+    /* Dark Text Styles */
     .stat-value {
-        font-size: 2.8rem;
+        font-size: 3rem;
         font-weight: 800;
-        letter-spacing: -1px;
-        margin-bottom: 5px;
-        background: linear-gradient(to right, #fff, var(--electric-cyan));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: var(--deep-black);
+        line-height: 1;
+        margin-bottom: 10px;
     }
 
     .stat-label {
-        color: rgba(255, 255, 255, 0.7);
+        color: #444; /* Dark grey-black */
         text-transform: uppercase;
         font-size: 0.75rem;
-        font-weight: 700;
-        letter-spacing: 1.5px;
+        font-weight: 600;
+        letter-spacing: 1px;
     }
 
-    /* Chart and Table Containers */
-    .data-container {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+    .data-section {
+        background: rgba(255, 255, 255, 0.9);
         border-radius: 24px;
-        padding: 25px;
-        margin-top: 30px;
+        padding: 30px;
+        border: 1px solid rgba(0,0,0,0.05);
+        color: var(--deep-black);
     }
 
     .btn-action {
-        background: linear-gradient(135deg, var(--electric-cyan), #0055ff);
-        border: none;
+        background: var(--deep-black);
         color: white;
-        font-weight: 600;
+        border: none;
+        padding: 12px 20px;
         border-radius: 12px;
-        padding: 10px 20px;
+        font-weight: 600;
         transition: 0.3s;
     }
 
     .btn-action:hover {
+        background: var(--electric-cyan);
+        color: var(--deep-black);
         transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
-        color: white;
     }
+
+    h5 { font-weight: 800; color: var(--deep-black); }
 </style>
 
-<div class="container py-5">
-    <div class="row g-4 mb-4">
+<div class="container py-5 dashboard-grid">
+    <div class="row g-4 mb-5">
         <div class="col-md-4">
             <div class="stat-card">
-                <div class="card-content">
-                    <div class="icon-glow">👥</div>
-                    <h6 class="stat-label">Total Enrollment</h6>
-                    <div class="stat-value"><?php echo $total_students; ?></div>
-                    <p class="small text-white-50">Registered students in system</p>
-                </div>
+                <div class="icon-box">👥</div>
+                <h6 class="stat-label">Total Enrollment</h6>
+                <div class="stat-value"><?php echo $total_students; ?></div>
+                <p class="small text-muted mb-0 font-monospace">ACTIVE_RECORDS</p>
             </div>
         </div>
 
         <div class="col-md-4">
             <div class="stat-card">
-                <div class="card-content">
-                    <div class="icon-glow violet-glow">🎓</div>
-                    <h6 class="stat-label">Active Courses</h6>
-                    <div class="stat-value" style="background: linear-gradient(to right, #fff, var(--royal-violet)); -webkit-background-clip: text;"><?php echo $total_classes; ?></div>
-                    <p class="small text-white-50">Specialized AI tracks</p>
-                </div>
+                <div class="icon-box" style="border-color: var(--royal-violet);">🎓</div>
+                <h6 class="stat-label">Academic Tracks</h6>
+                <div class="stat-value"><?php echo $total_classes; ?></div>
+                <p class="small text-muted mb-0 font-monospace">LIVE_COURSES</p>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="stat-card">
-                <div class="card-content text-center">
-                    <div class="icon-glow mx-auto" style="border-color: #fff; color: #fff; box-shadow: none;">⚙️</div>
-                    <h6 class="stat-label mb-3">Control Center</h6>
-                    <div class="d-grid gap-2">
-                        <a href="students.php?action=add" class="btn btn-action btn-sm">New Enrollment</a>
-                        <a href="fees.php" class="btn btn-outline-light btn-sm rounded-3">Fee Management</a>
-                    </div>
+            <div class="stat-card" style="border-bottom: 5px solid var(--electric-cyan);">
+                <h6 class="stat-label mb-3">Management</h6>
+                <div class="d-grid gap-2 mt-4">
+                    <a href="students.php?action=add" class="btn btn-action">Quick Enrollment</a>
+                    <a href="fees.php" class="btn btn-outline-dark rounded-3 fw-bold">Financial Audit</a>
                 </div>
             </div>
         </div>
@@ -172,34 +155,29 @@ include '../includes/header.php';
 
     <div class="row g-4">
         <div class="col-lg-8">
-            <div class="data-container">
-                <h5 class="mb-4 d-flex align-items-center">
-                    <span class="badge bg-info me-2" style="width: 10px; height: 10px; border-radius: 50%;">&nbsp;</span>
-                    Class Distribution Growth
-                </h5>
+            <div class="data-section shadow-sm">
+                <h5 class="mb-4">Visual Analytics</h5>
                 <canvas id="studentChart" height="140"></canvas>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="data-container h-100">
-                <h5 class="mb-4">Course Insights</h5>
+            <div class="data-section shadow-sm h-100">
+                <h5 class="mb-4">Course Density</h5>
                 <div class="table-responsive">
-                    <table class="table table-borderless align-middle text-white-50">
-                        <thead>
-                            <tr class="small border-bottom border-white-10">
-                                <th class="pb-3">TRACK</th>
-                                <th class="text-end pb-3">COUNT</th>
+                    <table class="table align-middle">
+                        <thead class="small text-muted text-uppercase">
+                            <tr>
+                                <th>Course</th>
+                                <th class="text-end">Students</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($class_stats as $stat): ?>
-                            <tr class="border-bottom border-white-10">
-                                <td class="py-3 fw-bold text-white"><?php echo htmlspecialchars($stat['class_name']); ?></td>
+                            <tr>
+                                <td class="py-3 fw-semibold"><?php echo htmlspecialchars($stat['class_name']); ?></td>
                                 <td class="text-end py-3">
-                                    <span class="badge rounded-pill" style="background: rgba(0, 212, 255, 0.1); color: var(--electric-cyan); border: 1px solid var(--electric-cyan);">
-                                        <?php echo $stat['student_count']; ?>
-                                    </span>
+                                    <span class="badge bg-dark px-3 py-2"><?php echo $stat['student_count']; ?></span>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -213,42 +191,28 @@ include '../includes/header.php';
 
 <script>
     const ctx = document.getElementById('studentChart').getContext('2d');
-    
-    // Gradient for Chart
-    const chartGradient = ctx.createLinearGradient(0, 0, 0, 400);
-    chartGradient.addColorStop(0, 'rgba(0, 212, 255, 0.4)');
-    chartGradient.addColorStop(1, 'rgba(157, 80, 187, 0.05)');
-
     new Chart(ctx, {
-        type: 'line', // Line chart looks more professional for "Growth"
+        type: 'line',
         data: {
             labels: <?php echo $labels; ?>,
             datasets: [{
-                label: 'Student Count',
+                label: 'Student Distribution',
                 data: <?php echo $counts; ?>,
                 fill: true,
-                backgroundColor: chartGradient,
-                borderColor: '#00d4ff',
-                borderWidth: 3,
-                pointBackgroundColor: '#fff',
-                pointBorderColor: '#00d4ff',
-                pointHoverRadius: 6,
-                tension: 0.4 // Smooth curves
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                borderColor: '#0a0a0a', /* Dark black line for the chart */
+                borderWidth: 4,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: '#00d4ff'
             }]
         },
         options: {
             responsive: true,
             plugins: { legend: { display: false } },
             scales: {
-                y: { 
-                    beginAtZero: true, 
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: 'rgba(255,255,255,0.5)' }
-                },
-                x: { 
-                    grid: { display: false },
-                    ticks: { color: 'rgba(255,255,255,0.5)' }
-                }
+                y: { grid: { color: '#f0f0f0' }, ticks: { color: '#0a0a0a', font: { weight: 'bold' } } },
+                x: { grid: { display: false }, ticks: { color: '#0a0a0a', font: { weight: 'bold' } } }
             }
         }
     });
