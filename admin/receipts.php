@@ -5,7 +5,7 @@ require_once '../includes/auth_check.php';
 $student_id = isset($_GET['student_id']) ? $_GET['student_id'] : null;
 $receipt_id = isset($_GET['print']) ? $_GET['print'] : null;
 
-// --- PART 1: PRINT VIEW (3 COPIES) ---
+// --- PART 1: PRINT VIEW (3 HORIZONTAL COPIES) ---
 if ($receipt_id) {
     $stmt = $pdo->prepare("
         SELECT f.*, s.name as student_name, c.class_name 
@@ -25,104 +25,137 @@ if ($receipt_id) {
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Print Receipt - <?php echo $r['receipt_number']; ?></title>
+        <title>Receipt_<?php echo $r['receipt_number']; ?></title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
         <style>
-            body { font-family: 'Inter', sans-serif; color: #0a0a0a; background: #f4f4f4; }
-            .no-print-nav { background: #fff; padding: 15px; border-bottom: 1px solid #ddd; text-align: center; }
+            /* Reset and typography */
+            body { font-family: 'Inter', sans-serif; color: #000; background: #fff; margin: 0; padding: 0; }
             
-            .print-area { background: #fff; width: 210mm; margin: 20px auto; padding: 10mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+            /* Print-specific landscape orientation */
+            @page { size: A4 landscape; margin: 5mm; }
             
-            .receipt-copy { 
-                border: 2px dashed #00d4ff; 
-                padding: 20px; 
-                margin-bottom: 40px; 
-                position: relative; 
-                page-break-inside: avoid;
+            .no-print-nav { 
+                background: #f8f9fa; padding: 10px; 
+                text-align: center; border-bottom: 1px solid #ddd; 
             }
 
-            .copy-tag { 
-                position: absolute; top: 0; right: 20px; 
-                background: #0a0a0a; color: #fff; 
-                font-size: 10px; padding: 2px 12px; 
-                border-radius: 0 0 5px 5px; text-transform: uppercase; 
+            /* Main Horizontal Wrapper */
+            .receipt-wrapper {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 10px;
+                width: 100%;
             }
 
-            .logo-img { width: 50px; height: 50px; border-radius: 50%; border: 1px solid #00d4ff; }
-            .header-title { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.5px; }
-            .data-label { font-size: 10px; color: #666; text-transform: uppercase; font-weight: 600; }
-            .data-value { font-weight: 600; font-size: 14px; display: block; }
+            /* Individual Receipt (1/3 of the width) */
+            .receipt-box {
+                flex: 1;
+                border: 1.5px dashed #000;
+                padding: 15px;
+                background: #fff;
+                position: relative;
+                min-height: 180mm; /* Ensures they all have the same height */
+            }
+
+            .copy-tag {
+                background: #000; color: #fff;
+                font-size: 9px; padding: 2px 8px;
+                font-weight: bold; position: absolute;
+                top: 0; right: 10px; border-radius: 0 0 5px 5px;
+            }
+
+            .header-section { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+            .logo-img { width: 45px; height: 45px; border-radius: 50%; margin-bottom: 5px; }
+            .academy-name { font-size: 1rem; font-weight: 800; text-transform: uppercase; margin: 0; line-height: 1.2; }
             
-            .amount-box { 
-                background: #f8f9fa; border: 1px solid #00d4ff; 
-                padding: 10px 20px; border-radius: 8px; 
-                font-weight: 800; font-size: 1.2rem; 
-            }
+            .data-row { margin-bottom: 12px; }
+            .label { font-size: 9px; font-weight: 700; color: #555; text-transform: uppercase; display: block; }
+            .value { font-size: 12px; font-weight: 600; color: #000; display: block; border-bottom: 1px solid #f0f0f0; }
 
-            .sig-line { border-top: 1px solid #0a0a0a; margin-top: 30px; width: 180px; text-align: center; font-size: 12px; padding-top: 5px; }
+            .amount-section {
+                background: #f9f9f9;
+                border: 1px solid #000;
+                padding: 8px;
+                margin-top: 15px;
+                text-align: center;
+                border-radius: 5px;
+            }
+            .amount-text { font-size: 1.2rem; font-weight: 800; }
+
+            .signature-area {
+                margin-top: 40px;
+                border-top: 1px solid #000;
+                font-size: 10px;
+                text-align: center;
+                padding-top: 5px;
+            }
 
             @media print {
                 .no-print-nav { display: none; }
-                .print-area { margin: 0; box-shadow: none; width: 100%; }
                 body { background: #fff; }
-                .receipt-copy { border-color: #eee; }
+                .receipt-wrapper { padding: 0; gap: 5px; }
+                .receipt-box { border-color: #ccc; }
             }
         </style>
     </head>
     <body onload="window.print()">
         <div class="no-print-nav">
-            <button onclick="window.print()" class="btn btn-dark">Print Now</button>
-            <a href="receipts.php?student_id=<?php echo $r['student_id']; ?>" class="btn btn-outline-secondary">Back to History</a>
+            <button onclick="window.print()" class="btn btn-dark btn-sm">Print Now (Landscape)</button>
+            <a href="receipts.php?student_id=<?php echo $r['student_id']; ?>" class="btn btn-outline-secondary btn-sm">Back</a>
+            <p class="small text-muted mt-2 mb-0">Note: Please ensure printer settings are set to <b>Landscape</b> orientation.</p>
         </div>
 
-        <div class="print-area">
-            <?php foreach ($copies as $title): ?>
-            <div class="receipt-copy">
-                <div class="copy-tag"><?php echo $title; ?></div>
+        <div class="receipt-wrapper">
+            <?php foreach ($copies as $copy_name): ?>
+            <div class="receipt-box">
+                <div class="copy-tag"><?php echo $copy_name; ?></div>
                 
-                <div class="row align-items-center mb-4">
-                    <div class="col-1">
-                        <img src="../uploads/Logo Web.png" class="logo-img">
+                <div class="header-section">
+                    <img src="../uploads/Logo Web.png" class="logo-img">
+                    <h1 class="academy-name">AI Future Leaders Academy</h1>
+                    <small style="font-size: 9px;">Official Fee Receipt</small>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <span class="label">Receipt No</span>
+                        <span class="value">#<?php echo $r['receipt_number']; ?></span>
                     </div>
-                    <div class="col-8 ps-4">
-                        <div class="header-title">AI FUTURE LEADERS ACADEMY</div>
-                        <div class="text-muted small">Quality Education for Next Gen Innovators</div>
-                    </div>
-                    <div class="col-3 text-end">
-                        <span class="data-label">Receipt Number</span>
-                        <span class="data-value">#<?php echo $r['receipt_number']; ?></span>
+                    <div class="col-6">
+                        <span class="label">Date</span>
+                        <span class="value"><?php echo date('d-m-Y', strtotime($r['payment_date'])); ?></span>
                     </div>
                 </div>
 
-                <div class="row g-3">
-                    <div class="col-12 border-bottom pb-2 mb-2">
-                        <span class="data-label">Student Name</span>
-                        <span class="data-value text-uppercase" style="font-size: 18px;"><?php echo htmlspecialchars($r['student_name']); ?></span>
-                    </div>
-                    <div class="col-4">
-                        <span class="data-label">Academic Track</span>
-                        <span class="data-value"><?php echo htmlspecialchars($r['class_name']); ?></span>
-                    </div>
-                    <div class="col-4">
-                        <span class="data-label">Fee Type</span>
-                        <span class="data-value"><?php echo $r['fee_type']; ?></span>
-                    </div>
-                    <div class="col-4">
-                        <span class="data-label">Payment Date</span>
-                        <span class="data-value"><?php echo date('d-M-Y', strtotime($r['payment_date'])); ?></span>
-                    </div>
+                <div class="data-row">
+                    <span class="label">Student Name</span>
+                    <span class="value text-uppercase"><?php echo htmlspecialchars($r['student_name']); ?></span>
                 </div>
 
-                <div class="mt-4 d-flex justify-content-between align-items-end">
-                    <div>
-                        <span class="data-label">Amount Paid</span>
-                        <div class="amount-box"><?php echo number_format($r['amount']); ?> PKR</div>
-                    </div>
-                    <div class="sig-line">
-                        Authorized Signature
-                    </div>
+                <div class="data-row">
+                    <span class="label">Academic Track</span>
+                    <span class="value"><?php echo htmlspecialchars($r['class_name']); ?></span>
+                </div>
+
+                <div class="data-row">
+                    <span class="label">Payment For</span>
+                    <span class="value"><?php echo $r['fee_type']; ?></span>
+                </div>
+
+                <div class="amount-section">
+                    <span class="label" style="color:#000;">Total Paid (PKR)</span>
+                    <div class="amount-text"><?php echo number_format($r['amount']); ?>/-</div>
+                </div>
+
+                <div class="signature-area">
+                    Authorized Signatory
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <small style="font-size: 8px; color: #888;">This is a computer-generated receipt.</small>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -133,38 +166,36 @@ if ($receipt_id) {
     exit;
 }
 
-// --- PART 2: DASHBOARD VIEW (HISTORY TABLE) ---
+// --- PART 2: DASHBOARD HISTORY TABLE ---
 include '../includes/header.php';
 ?>
 
 <style>
     body { background-color: #060b28; color: #fff; font-family: 'Inter', sans-serif; }
     .history-card { 
-        background: rgba(255, 255, 255, 0.95); 
-        border-radius: 20px; 
-        color: #0a0a0a; 
+        background: rgba(255, 255, 255, 0.98); 
+        border-radius: 24px; 
+        color: #000; 
         overflow: hidden; 
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
-    .table thead { background: #0a0a0a; color: #fff; }
-    .btn-print { background: #00d4ff; color: #0a0a0a; font-weight: 700; border: none; }
-    .btn-print:hover { background: #00b8e6; }
+    .table-head-dark { background: #000; color: #fff; }
+    .btn-action-print { background: #00d4ff; color: #000; font-weight: 700; border: none; }
 </style>
 
 <div class="container py-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-800" style="font-weight: 800; letter-spacing: -1px;">Payment History</h2>
-        <a href="fees.php" class="btn btn-outline-light rounded-pill px-4">← Back to Fees</a>
+        <h2 style="font-weight: 800;">Student Ledgers</h2>
+        <a href="fees.php" class="btn btn-outline-light rounded-pill px-4">← Back</a>
     </div>
 
-    <div class="history-card shadow">
+    <div class="history-card shadow-lg">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead>
+                <thead class="table-head-dark">
                     <tr>
-                        <th class="ps-4">Receipt No</th>
-                        <th>Fee Type</th>
-                        <th>Amount (PKR)</th>
+                        <th class="ps-4">Receipt #</th>
+                        <th>Type</th>
+                        <th>Amount</th>
                         <th>Date</th>
                         <th class="text-center">Action</th>
                     </tr>
@@ -180,18 +211,18 @@ include '../includes/header.php';
                     <tr>
                         <td class="ps-4 fw-bold">#<?php echo $r['receipt_number']; ?></td>
                         <td><span class="badge bg-light text-dark border"><?php echo $r['fee_type']; ?></span></td>
-                        <td class="fw-bold"><?php echo number_format($r['amount']); ?></td>
+                        <td class="fw-bold"><?php echo number_format($r['amount']); ?> PKR</td>
                         <td><?php echo date('d M, Y', strtotime($r['payment_date'])); ?></td>
                         <td class="text-center">
-                            <a href="receipts.php?print=<?php echo $r['id']; ?>" target="_blank" class="btn btn-sm btn-print px-3 rounded-pill">
-                                ⎙ Print 3 Copies
+                            <a href="receipts.php?print=<?php echo $r['id']; ?>" target="_blank" class="btn btn-sm btn-action-print px-3 rounded-pill">
+                                Generate 3-Copy Slip
                             </a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
                     
                     <?php if (empty($receipts)): ?>
-                        <tr><td colspan="5" class="text-center py-5 text-muted">No payment records found for this student.</td></tr>
+                        <tr><td colspan="5" class="text-center py-5 text-muted">No records found.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
