@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login | AI Future Leaders Academy</title>
+    <title>Login | AI Future Leaders Academy</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -110,8 +110,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="login-card">
         <div class="logo-container">
             <img src="uploads\Logo Web.png" alt="Logo">
-            <h2 class="mt-3" style="font-weight: 300;">Academy Portal</h2>
-            <p class="text-muted small">Empowering Minds for the Future</p>
+            <h2 class="mt-3" style="font-weight: 300;">AI Future Leaders Academy</h2>
+            <p class="text-muted small">Empowering young talent</p>
         </div>
 
         <?php if ($error): ?>
