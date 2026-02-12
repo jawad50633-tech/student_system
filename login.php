@@ -116,8 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="login-card">
         <div class="logo-container">
             <img src="uploads/Logo Web.png" alt="Academy Logo">
-            <h3 class="mt-3 fw-bold">Academy Portal</h3>
-            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Empowering Future Minds</p>
+            <h3 class="mt-3 fw-bold">AI Future Leaders Academy</h3>
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Empowering Young Talent</p>
         </div>
 
         <?php if ($error): ?>
