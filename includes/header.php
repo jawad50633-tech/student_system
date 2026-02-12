@@ -53,8 +53,7 @@
         /* Center Title: 3D & Stylish */
         .academy-center-title {
             position: absolute;
-            left: 50%;
-            /* Changed from -50% to -60% to nudge it slightly left */
+            left: 60%;
             transform: translateX(-60%); 
             color: #000;
             font-weight: 800;
