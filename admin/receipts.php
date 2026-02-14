@@ -9,12 +9,13 @@ $receipt_id = isset($_GET['print']) ? $_GET['print'] : null;
 if ($receipt_id) {
     // Updated query to include father_name and the student's primary ID
     $stmt = $pdo->prepare("
-        SELECT f.*, s.id as sid, s.name as student_name, s.father_name, c.class_name 
-        FROM fees f 
-        JOIN students s ON f.student_id = s.id 
-        JOIN classes c ON s.class_id = c.id 
-        WHERE f.id = ?
-    ");
+    SELECT f.*, s.name as student_name, c.class_name 
+    FROM fees f 
+    JOIN students s ON f.student_id = s.id 
+    LEFT JOIN classes c ON s.class_id = c.id 
+    WHERE f.id = ?
+");
+
     $stmt->execute([$receipt_id]);
     $r = $stmt->fetch();
 
