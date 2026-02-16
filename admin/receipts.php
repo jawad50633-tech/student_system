@@ -1,36 +1,32 @@
 <?php
-// echo "Receipts page loaded";
-
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 require_once '../config.php';
 require_once '../includes/auth_check.php';
 
-// if (!isset($_GET['student_id']) || empty($_GET['student_id'])) {
-//     die("Invalid access.");
-// }
+// 1. SAFE VARIABLE CAPTURE (Prevents the Line 14 Warning)
+$student_id = isset($_GET['student_id']) ? $_GET['student_id'] : null;
+$receipt_id = isset($_GET['print']) ? $_GET['print'] : null;
 
-$student_id = (int) $_GET['student_id'];
-$receipt_id = isset($_GET['print']) ? (int) $_GET['print'] : null;
-
-
-// --- PART 1: PRINT VIEW (HORIZONTAL COPIES) ---
+// --- MODE 1: PRINTING A SPECIFIC RECEIPT ---
 if ($receipt_id) {
-    // Updated query to include father_name and the student's primary ID
+    // 2. DETAILED SQL QUERY
+    // Ensure 'father_name' exists in your 'students' table
     $stmt = $pdo->prepare("
-    SELECT f.*, s.id as sid, s.name as student_name, s.father_name, c.class_name 
+        SELECT f.*, 
+               s.id as sid, 
+               s.name as student_name, 
+               s.father_name as f_name, 
+               c.class_name 
         FROM fees f 
-        JOIN students s ON f.student_id = s.id 
-        JOIN classes c ON s.class_id = c.id 
+        LEFT JOIN students s ON f.student_id = s.id 
+        LEFT JOIN classes c ON s.class_id = c.id 
         WHERE f.id = ?
-        
-");
-
+    ");
     $stmt->execute([$receipt_id]);
     $r = $stmt->fetch();
 
-    if (!$r) die("Receipt not found");
+    if (!$r) {
+        die("Receipt ID #$receipt_id not found.");
+    }
 
     $copies = ['Office Copy', 'Student Copy', 'Teacher Copy'];
     ?>
@@ -40,65 +36,95 @@ if ($receipt_id) {
         <meta charset="UTF-8">
         <title>Receipt_<?php echo $r['receipt_number']; ?></title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
         <style>
-            body { font-family: 'Inter', sans-serif; color: #000; background: #fff; margin: 0; padding: 0; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; color: #000; }
             @page { size: A4 landscape; margin: 5mm; }
-            
-            .no-print-nav { background: #f8f9fa; padding: 10px; text-align: center; border-bottom: 1px solid #ddd; }
-
-            .receipt-wrapper { display: flex; flex-direction: row; justify-content: space-between; gap: 15px; padding: 10px; width: 100%; }
-
-            .receipt-box {
-                flex: 1; border: 1.5px dashed #000; padding: 15px; background: #fff;
-                position: relative; min-height: 185mm; display: flex; flex-direction: column;
+            .no-print-nav { background: #eee; padding: 10px; text-align: center; border-bottom: 1px solid #ccc; }
+            .receipt-wrapper { display: flex; gap: 15px; padding: 10px; }
+            .receipt-box { 
+                flex: 1; border: 2px solid #000; padding: 15px; border-radius: 8px;
+                display: flex; flex-direction: column; min-height: 175mm;
             }
-
-            .copy-tag {
-                background: #000; color: #fff; font-size: 9px; padding: 2px 8px;
-                font-weight: bold; position: absolute; top: 0; right: 10px; border-radius: 0 0 5px 5px;
-            }
-
-            .header-section { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-            .logo-img { width: 45px; height: 45px; border-radius: 50%; margin-bottom: 5px; }
-            .academy-name { font-size: 1rem; font-weight: 800; text-transform: uppercase; margin: 0; line-height: 1.2; }
+            .header { text-align: center; border-bottom: 2px solid #000; margin-bottom: 15px; }
+            .school-title { font-weight: 900; font-size: 16px; margin: 0; text-transform: uppercase; }
             
-            .label { font-size: 9px; font-weight: 700; color: #555; text-transform: uppercase; display: block; }
-            .value { font-size: 12px; font-weight: 600; color: #000; display: block; border-bottom: 1px solid #f0f0f0; margin-bottom: 12px; }
-
-            .amount-section { background: #f9f9f9; border: 1px solid #000; padding: 10px; margin-top: 15px; text-align: center; border-radius: 5px; }
-            .amount-text { font-size: 1.3rem; font-weight: 800; }
-
-            .footer-signature { margin-top: auto; padding-top: 60px; }
-            .signature-line { border-top: 1.5px solid #000; font-size: 11px; font-weight: 700; text-align: center; padding-top: 5px; }
-
-            @media print { .no-print-nav { display: none; } body { background: #fff; } }
+            /* Grid Layout for details */
+            .detail-row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+            .detail-col { flex: 1; border-bottom: 1px solid #ddd; padding-bottom: 2px; }
+            
+            .label { font-size: 10px; font-weight: bold; color: #444; text-transform: uppercase; display: block; }
+            .value { font-size: 13px; font-weight: 600; }
+            
+            .amount-box { 
+                margin-top: 20px; background: #f9f9f9; border: 2px solid #000; 
+                padding: 10px; text-align: center; border-radius: 5px; 
+            }
+            .footer { margin-top: auto; display: flex; justify-content: space-between; padding-top: 30px; }
+            .sign-line { border-top: 1px solid #000; width: 120px; text-align: center; font-size: 11px; font-weight: bold; }
+            @media print { .no-print-nav { display: none; } }
         </style>
     </head>
     <body onload="window.print()">
         <div class="no-print-nav">
-            <button onclick="window.print()" class="btn btn-dark btn-sm">Print Now</button>
-            <a href="receipts.php?student_id=<?php echo $r['student_id']; ?>" class="btn btn-outline-secondary btn-sm">Back</a>
+            <button onclick="window.print()" class="btn btn-dark btn-sm">PRINT RECEIPT</button>
+            <a href="receipts.php?student_id=<?php echo $r['student_id']; ?>" class="btn btn-secondary btn-sm">BACK TO LEDGER</a>
         </div>
+
         <div class="receipt-wrapper">
-            <?php foreach ($copies as $copy_name): ?>
+            <?php foreach ($copies as $copy): ?>
             <div class="receipt-box">
-                <div class="copy-tag"><?php echo $copy_name; ?></div>
-                <div class="header-section">
-                    <img src="../uploads/Logo Web.jpg" class="logo-img">
-                    <h1 class="academy-name">AI Future Leaders Academy</h1>
+                <div class="header">
+                    <img src="../uploads/Logo Web.png" style="width:50px; border-radius:50%;">
+                    <h1 class="school-title">AI FUTURE LEADERS ACADEMY</h1>
+                    <div style="font-size:10px; font-weight:bold;"><?php echo $copy; ?></div>
                 </div>
 
-                <div class="row gx-2">
-                    <div class="col-6"><span class="label">Receipt No</span><span class="value">#<?php echo $r['receipt_number']; ?></span></div>
-                    <div class="col-6"><span class="label">Student ID</span><span class="value">STU-<?php echo $r['sid']; ?></span></div>
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <span class="label">Receipt No</span>
+                        <span class="value">#<?php echo $r['receipt_number']; ?></span>
+                    </div>
+                    <div class="detail-col text-end">
+                        <span class="label">Student ID</span>
+                        <span class="value">STU-<?php echo $r['sid']; ?></span>
+                    </div>
                 </div>
-                <span class="label">Student Name</span><span class="value text-uppercase"><?php echo htmlspecialchars($r['student_name']); ?></span>
-                <span class="label">Course Track</span><span class="value"><?php echo htmlspecialchars($r['class_name']); ?></span>
-                <span class="label">Payment For</span><span class="value"><?php echo $r['fee_type']; ?></span>
-                <div class="amount-section"><span class="label">Total Paid</span><div class="amount-text"><?php echo number_format($r['amount']); ?> PKR</div></div>
-                <div class="footer-signature">
-                    <div class="signature-line">Authorized Stamp & Signature</div>
+
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <span class="label">Student Name</span>
+                        <span class="value"><?php echo strtoupper($r['student_name']); ?></span>
+                    </div>
+                    <div class="detail-col text-end">
+                        <span class="label">Father Name</span>
+                        <span class="value"><?php echo strtoupper($r['f_name'] ?? 'N/A'); ?></span>
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-col">
+                        <span class="label">Class / Grade</span>
+                        <span class="value"><?php echo $r['class_name']; ?></span>
+                    </div>
+                    <div class="detail-col text-end">
+                        <span class="label">Payment Date</span>
+                        <span class="value"><?php echo date('d-m-Y', strtotime($r['payment_date'])); ?></span>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <span class="label">Fee Category</span>
+                    <span class="value"><?php echo ($r['amount'] == 800) ? "One-Time Admission Fee" : "Monthly Tuition Fee"; ?></span>
+                </div>
+
+                <div class="amount-box">
+                    <span class="label">Net Amount Paid</span>
+                    <div style="font-size: 24px; font-weight: 900;"><?php echo number_format($r['amount']); ?> PKR</div>
+                </div>
+
+                <div class="footer">
+                    <div style="font-size: 9px;">System Generated</div>
+                    <div class="sign-line">Authorized Sign</div>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -109,123 +135,48 @@ if ($receipt_id) {
     exit;
 }
 
-// --- PART 2: DASHBOARD HISTORY VIEW ---
-include '../includes/header.php';
-?>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
-<style>
-    body { 
-        background: linear-gradient(rgba(6, 11, 40, 0.9), rgba(6, 11, 40, 0.9)), url('../uploads/background.png');
-        background-size: cover;
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* The Glass Header for the Black Title */
-    .stylish-header-bar {
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 20px 35px;
-        margin-bottom: 30px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-    /* High-end Stylish Black Font */
-    .black-title {
-        color: #000000;
-        font-weight: 800;
-        font-size: 2.2rem;
-        letter-spacing: -1.8px;
-        margin: 0;
-        text-transform: none;
-    }
-
-    .history-card { 
-        background: rgba(255, 255, 255, 0.98); 
-        border-radius: 28px; 
-        color: #000; 
-        overflow: hidden; 
-        box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-    }
-
-    .table thead th {
-        background: #000;
-        color: #fff;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 1px;
-        padding: 18px;
-        border: none;
-    }
-
-    .btn-generate {
-        background: #00d4ff;
-        color: #000;
-        font-weight: 700;
-        border-radius: 50px;
-        padding: 8px 24px;
-        border: none;
-        transition: 0.3s;
-    }
-
-    .btn-generate:hover {
-        background: #000;
-        color: #fff;
-        transform: scale(1.05);
-    }
-</style>
-
-<div class="container py-5">
-    <div class="stylish-header-bar">
-        <h2 class="black-title">Payment Records</h2>
-        <a href="fees.php" class="btn btn-dark rounded-pill px-4 fw-bold">← Back to Fees</a>
-    </div>
-
-    <div class="history-card">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Receipt ID</th>
-                        <th>Fee Category</th>
-                        <th>Amount (PKR)</th>
-                        <th>Date of Payment</th>
-                        <th class="text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody style="color: #000;">
-                    <?php
-                    $stmt = $pdo->prepare("SELECT * FROM fees WHERE student_id = ? ORDER BY id DESC");
-                    $stmt->execute([$student_id]);
-                    $receipts = $stmt->fetchAll();
-
-                    foreach ($receipts as $r):
-                    ?>
-                    <tr>
-                        <td class="ps-4 fw-800" style="font-weight: 800;">#<?php echo $r['receipt_number']; ?></td>
-                        <td><span class="badge bg-light text-dark border px-3 py-2"><?php echo $r['fee_type']; ?></span></td>
-                        <td class="fw-bold"><?php echo number_format($r['amount']); ?></td>
-                        <td><?php echo date('d M, Y', strtotime($r['payment_date'])); ?></td>
-                        <td class="text-center">
-                            <a href="receipts.php?print=<?php echo $r['id']; ?>" target="_blank" class="btn btn-sm btn-generate">
-                                Generate Slip
-                            </a>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                    
-                    <?php if (empty($receipts)): ?>
-                        <tr><td colspan="5" class="text-center py-5 text-muted">No transactions found.</td></tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+// --- MODE 2: LEDGER VIEW ---
+if ($student_id) {
+    include '../includes/header.php';
+    ?>
+    <div class="container py-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 fw-bold">Fee History</h4>
+                <a href="fees.php" class="btn btn-outline-dark btn-sm">Back</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Receipt #</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th class="text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $stmt = $pdo->prepare("SELECT * FROM fees WHERE student_id = ? ORDER BY id DESC");
+                        $stmt->execute([$student_id]);
+                        while ($row = $stmt->fetch()) {
+                            echo "<tr>
+                                <td class='fw-bold'>#{$row['receipt_number']}</td>
+                                <td>" . number_format($row['amount']) . " PKR</td>
+                                <td>" . date('d M, Y', strtotime($row['payment_date'])) . "</td>
+                                <td class='text-center'>
+                                    <a href='receipts.php?print={$row['id']}' target='_blank' class='btn btn-primary btn-sm rounded-pill'>Print</a>
+                                </td>
+                            </tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-</div>
-
-<?php include '../includes/footer.php'; ?>
+    <?php
+    include '../includes/footer.php';
+} else {
+    die("<div style='text-align:center; padding:100px;'><h3>Please select a student first.</h3><a href='fees.php'>Go Back</a></div>");
+}
