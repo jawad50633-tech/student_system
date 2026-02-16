@@ -11,12 +11,21 @@ if (isset($_POST['pay_fee'])) {
     $student_id = $_POST['student_id'];
     $fee_type = $_POST['fee_type'];
     $amount = ($fee_type == 'Admission') ? 800 : 3000;
-    $receipt_number = 'REC-' . strtoupper(substr(md5(time()), 0, 6)) . rand(10, 99);
-    $payment_date = date('Y-m-d');
+    
+    // Safety check: Prevent duplicate entry if user refreshes or bypasses UI
+    $check = $pdo->prepare("SELECT COUNT(*) FROM fees WHERE student_id = ? AND fee_type = ? AND (fee_type = 'Admission' OR (MONTH(payment_date) = ? AND YEAR(payment_date) = ?))");
+    $check->execute([$student_id, $fee_type, $current_month, $current_year]);
+    
+    if ($check->fetchColumn() == 0) {
+        $receipt_number = 'REC-' . strtoupper(substr(md5(time()), 0, 6)) . rand(10, 99);
+        $payment_date = date('Y-m-d');
 
-    $stmt = $pdo->prepare("INSERT INTO fees (student_id, fee_type, amount, status, payment_date, receipt_number) VALUES (?, ?, ?, 'Paid', ?, ?)");
-    if ($stmt->execute([$student_id, $fee_type, $amount, $payment_date, $receipt_number])) {
-        $message = "Payment of $amount PKR recorded successfully!";
+        $stmt = $pdo->prepare("INSERT INTO fees (student_id, fee_type, amount, status, payment_date, receipt_number) VALUES (?, ?, ?, 'Paid', ?, ?)");
+        if ($stmt->execute([$student_id, $fee_type, $amount, $payment_date, $receipt_number])) {
+            $message = "Payment of $amount PKR recorded successfully!";
+        }
+    } else {
+        $message = "Error: This fee has already been paid.";
     }
 }
 
@@ -46,7 +55,6 @@ include '../includes/header.php';
         font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;
     }
 
-    /* STUDENT INFO & CLASS (BLACK TEXT AREA) */
     .col-light-data { 
         background: #f8f9fa !important; color: #000 !important; 
         border-bottom: 1px solid #dee2e6 !important;
@@ -54,21 +62,17 @@ include '../includes/header.php';
     .stu-name-black { color: #000 !important; font-weight: 800; font-size: 1.1rem; display: block; }
     .class-tag-black { color: #444 !important; font-weight: 700; font-size: 0.9rem; background: #e9ecef; padding: 2px 8px; border-radius: 4px; }
 
-    /* STATUS COLORS & ICONS */
     .status-paid-box { 
-        color: #065f46 !important; /* Darker Emerald Green */
-        background: rgba(16, 185, 129, 0.1); 
+        color: #065f46 !important; background: rgba(16, 185, 129, 0.1); 
         padding: 6px 12px; border-radius: 8px; border: 1px solid #065f46;
         font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;
     }
     .status-unpaid-box { 
-        color: #991b1b !important; /* Darker Deep Red */
-        background: rgba(239, 68, 68, 0.1); 
+        color: #991b1b !important; background: rgba(239, 68, 68, 0.1); 
         padding: 6px 12px; border-radius: 8px; border: 1px solid #991b1b;
         font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;
     }
 
-    /* ACTION BUTTONS */
     .btn-collect { 
         background: #00d4ff; color: #000 !important; font-weight: 800; 
         border-radius: 10px; border: none; padding: 10px 20px; transition: 0.3s;
@@ -81,11 +85,33 @@ include '../includes/header.php';
     }
     .btn-history:hover { background: #00d4ff; color: #000 !important; }
 
-    /* MODAL */
     .modal-content { background: #0b0f19; border: 1px solid #00d4ff; border-radius: 25px; color: #fff; }
+
+    /* Modal Card Styling */
+    .payment-card {
+        transition: 0.3s;
+        border: 1px solid #333;
+    }
+    .payment-card:hover:not(.disabled) {
+        border-color: #00d4ff;
+        background: #111 !important;
+        transform: translateY(-5px);
+    }
+    .payment-card.disabled {
+        opacity: 0.5;
+        cursor: not-allowed !important;
+        background: #050505 !important;
+        border-color: #1a1a1a;
+    }
 </style>
 
 <div class="container py-5">
+    <?php if($message): ?>
+        <div class="alert alert-info border-0 shadow-lg mb-4 bg-dark text-info fw-bold">
+            <i class="fa-solid fa-circle-info me-2"></i> <?php echo $message; ?>
+        </div>
+    <?php endif; ?>
+
     <div class="stylish-header-bar shadow-lg">
         <div>
             <h2 class="main-title"><i class="fa-solid fa-vault text-info me-2"></i>FEES MANAGER</h2>
@@ -167,8 +193,9 @@ include '../includes/header.php';
                         <form method="POST" id="formAdmission">
                             <input type="hidden" name="student_id" id="modal_sid_adm">
                             <input type="hidden" name="fee_type" value="Admission">
-                            <div class="p-4 border border-secondary rounded-4 bg-dark text-white" style="cursor:pointer;" onclick="submitIfActive('formAdmission')">
-                                <i class="fa-solid fa-graduation-cap fa-2x mb-2 text-info"></i><br><b>Admission</b>
+                            <div id="cardAdmission" class="payment-card p-4 rounded-4 bg-dark text-white" onclick="submitIfActive('formAdmission', 'cardAdmission')">
+                                <i class="fa-solid fa-graduation-cap fa-2x mb-2 text-info"></i><br>
+                                <b id="textAdmission">Admission</b>
                             </div>
                         </form>
                     </div>
@@ -176,12 +203,14 @@ include '../includes/header.php';
                         <form method="POST" id="formMonthly">
                             <input type="hidden" name="student_id" id="modal_sid_mon">
                             <input type="hidden" name="fee_type" value="Monthly">
-                            <div class="p-4 border border-secondary rounded-4 bg-dark text-white" style="cursor:pointer;" onclick="submitIfActive('formMonthly')">
-                                <i class="fa-solid fa-calendar-check fa-2x mb-2 text-info"></i><br><b>Monthly Fee</b>
+                            <div id="cardMonthly" class="payment-card p-4 rounded-4 bg-dark text-white" onclick="submitIfActive('formMonthly', 'cardMonthly')">
+                                <i class="fa-solid fa-calendar-check fa-2x mb-2 text-info"></i><br>
+                                <b id="textMonthly">Monthly Fee</b>
                             </div>
                         </form>
                     </div>
                 </div>
+                <button type="button" class="btn btn-link text-secondary mt-4 text-decoration-none" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
@@ -192,14 +221,45 @@ function openPaymentModal(id, name, hasAdm, hasMon) {
     document.getElementById('modalStudentName').innerText = name.toUpperCase();
     document.getElementById('modal_sid_adm').value = id;
     document.getElementById('modal_sid_mon').value = id;
+
+    // Admission Disable Logic
+    const admCard = document.getElementById('cardAdmission');
+    const admText = document.getElementById('textAdmission');
+    if (hasAdm > 0) {
+        admCard.classList.add('disabled');
+        admText.innerHTML = '<i class="fa-solid fa-check text-success"></i> Already Paid';
+    } else {
+        admCard.classList.remove('disabled');
+        admText.innerText = 'Admission';
+    }
+
+    // Monthly Disable Logic
+    const monCard = document.getElementById('cardMonthly');
+    const monText = document.getElementById('textMonthly');
+    if (hasMon > 0) {
+        monCard.classList.add('disabled');
+        monText.innerHTML = '<i class="fa-solid fa-check text-success"></i> Already Paid';
+    } else {
+        monCard.classList.remove('disabled');
+        monText.innerText = 'Monthly Fee';
+    }
+
     new bootstrap.Modal(document.getElementById('paymentModal')).show();
 }
 
-function submitIfActive(formId) {
+function submitIfActive(formId, cardId) {
+    const card = document.getElementById(cardId);
+    if(card.classList.contains('disabled')) {
+        return; // Do nothing if disabled
+    }
+
     const f = document.getElementById(formId);
     if(confirm("Collect Fee Payment?")) {
-        const b = document.createElement('input'); b.type='hidden'; b.name='pay_fee';
-        f.appendChild(b); f.submit();
+        const b = document.createElement('input'); 
+        b.type='hidden'; 
+        b.name='pay_fee';
+        f.appendChild(b); 
+        f.submit();
     }
 }
 </script>
