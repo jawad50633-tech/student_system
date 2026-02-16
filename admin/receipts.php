@@ -45,13 +45,9 @@ if ($receipt_id) {
             @page { size: A4 landscape; margin: 5mm; }
             
             .no-print-nav { background: #f8f9fa; padding: 10px; text-align: center; border-bottom: 1px solid #ddd; }
-<<<<<<< HEAD
-            .receipt-wrapper { display: flex; flex-direction: row; justify-content: space-between; gap: 12px; padding: 10px; width: 100%; }
-=======
 
             .receipt-wrapper { display: flex; flex-direction: row; justify-content: space-between; gap: 15px; padding: 10px; width: 100%; }
 
->>>>>>> parent of 5e80952 (Update receipts.php)
             .receipt-box {
                 flex: 1; border: 1.5px dashed #000; padding: 15px; background: #fff;
                 position: relative; min-height: 185mm; display: flex; flex-direction: column;
@@ -61,20 +57,6 @@ if ($receipt_id) {
                 background: #000; color: #fff; font-size: 9px; padding: 2px 8px;
                 font-weight: bold; position: absolute; top: 0; right: 10px; border-radius: 0 0 5px 5px;
             }
-<<<<<<< HEAD
-            .header-section { text-align: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-            .logo-img { width: 45px; height: 45px; border-radius: 50%; margin-bottom: 5px; }
-            .academy-name { font-size: 0.95rem; font-weight: 800; text-transform: uppercase; margin: 0; line-height: 1.1; }
-            
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
-            .label { font-size: 8px; font-weight: 700; color: #555; text-transform: uppercase; display: block; margin-bottom: 1px; }
-            .value { font-size: 11px; font-weight: 600; color: #000; display: block; border-bottom: 1px solid #f0f0f0; margin-bottom: 8px; overflow: hidden; white-space: nowrap; }
-            
-            .amount-section { background: #f9f9f9; border: 1px solid #000; padding: 8px; margin-top: 10px; text-align: center; border-radius: 5px; }
-            .amount-text { font-size: 1.2rem; font-weight: 800; }
-            .footer-signature { margin-top: auto; padding-top: 40px; }
-            .signature-line { border-top: 1.2px solid #000; font-size: 10px; font-weight: 700; text-align: center; padding-top: 5px; }
-=======
 
             .header-section { text-align: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
             .logo-img { width: 45px; height: 45px; border-radius: 50%; margin-bottom: 5px; }
@@ -89,7 +71,6 @@ if ($receipt_id) {
             .footer-signature { margin-top: auto; padding-top: 60px; }
             .signature-line { border-top: 1.5px solid #000; font-size: 11px; font-weight: 700; text-align: center; padding-top: 5px; }
 
->>>>>>> parent of 5e80952 (Update receipts.php)
             @media print { .no-print-nav { display: none; } body { background: #fff; } }
         </style>
     </head>
@@ -111,41 +92,10 @@ if ($receipt_id) {
                     <div class="col-6"><span class="label">Receipt No</span><span class="value">#<?php echo $r['receipt_number']; ?></span></div>
                     <div class="col-6"><span class="label">Student ID</span><span class="value">STU-<?php echo $r['sid']; ?></span></div>
                 </div>
-<<<<<<< HEAD
-
-                <span class="label">Student Name</span>
-                <span class="value text-uppercase"><?php echo htmlspecialchars($r['student_name']); ?></span>
-
-                <span class="label">Father's Name</span>
-                <span class="value text-uppercase"><?php echo htmlspecialchars($r['father_name']); ?></span>
-
-                <div class="row gx-2">
-                    <div class="col-7">
-                        <span class="label">Class / Course</span>
-                        <span class="value"><?php echo htmlspecialchars($r['class_name']); ?></span>
-                    </div>
-                    <div class="col-5">
-                        <span class="label">Date</span>
-                        <span class="value"><?php echo date('d-m-Y', strtotime($r['payment_date'])); ?></span>
-                    </div>
-                </div>
-
-                <span class="label">Fee Categorization</span>
-                <span class="value">
-                    <?php echo ($r['amount'] == 800) ? "Admission (One-Time)" : "Monthly Tuition Fee"; ?>
-                </span>
-
-                <div class="amount-section">
-                    <span class="label">Net Amount Received</span>
-                    <div class="amount-text"><?php echo number_format($r['amount']); ?> PKR</div>
-                </div>
-
-=======
                 <span class="label">Student Name</span><span class="value text-uppercase"><?php echo htmlspecialchars($r['student_name']); ?></span>
                 <span class="label">Course Track</span><span class="value"><?php echo htmlspecialchars($r['class_name']); ?></span>
                 <span class="label">Payment For</span><span class="value"><?php echo $r['fee_type']; ?></span>
                 <div class="amount-section"><span class="label">Total Paid</span><div class="amount-text"><?php echo number_format($r['amount']); ?> PKR</div></div>
->>>>>>> parent of 5e80952 (Update receipts.php)
                 <div class="footer-signature">
                     <div class="signature-line">Authorized Stamp & Signature</div>
                 </div>
@@ -161,8 +111,6 @@ if ($receipt_id) {
 // --- PART 2: DASHBOARD HISTORY VIEW ---
 include '../includes/header.php';
 ?>
-<<<<<<< HEAD
-=======
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
@@ -280,4 +228,3 @@ include '../includes/header.php';
 </div>
 
 <?php include '../includes/footer.php'; ?>
->>>>>>> parent of 5e80952 (Update receipts.php)
