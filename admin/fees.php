@@ -23,102 +23,105 @@ if (isset($_POST['pay_fee'])) {
 include '../includes/header.php';
 ?>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
     body { 
-        background: linear-gradient(rgba(6, 11, 40, 0.96), rgba(6, 11, 40, 0.96)), url('../uploads/background.png');
+        background: linear-gradient(rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.92)), url('../uploads/background.png');
         background-size: cover; background-attachment: fixed; font-family: 'Inter', sans-serif; color: #fff;
     }
     
     .stylish-header-bar {
-        background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 20px; padding: 20px 35px; margin-bottom: 30px;
+        background: #000; 
+        border: 1px solid #333;
+        border-radius: 15px; padding: 20px 35px; margin-bottom: 30px;
         display: flex; justify-content: space-between; align-items: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
-    .black-title { color: #fff; font-weight: 800; font-size: 2.2rem; letter-spacing: -1.5px; margin: 0; }
+    .main-title { color: #00d4ff; font-weight: 900; font-size: 2.2rem; letter-spacing: -1px; margin: 0; }
 
     .fees-card { 
-        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-        border-radius: 28px; border: 1px solid rgba(255,255,255,0.12);
-        overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        background: #000; 
+        border-radius: 20px; border: 1px solid #222;
+        overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
     }
 
-    /* Table Visibility Fixes */
-    .table { color: #ffffff !important; margin-bottom: 0; width: 100%; }
+    /* THE BLACK TABLE STYLE */
+    .table { margin-bottom: 0; background: #000 !important; }
     .table thead th { 
-        background: rgba(0,0,0,0.6); color: #00d4ff !important; 
-        padding: 20px; border: none; font-size: 0.8rem; 
-        text-transform: uppercase; letter-spacing: 1.5px;
+        background: #111; color: #00d4ff !important; 
+        padding: 22px; border: none; font-size: 0.85rem; 
+        text-transform: uppercase; letter-spacing: 2px; font-weight: 800;
     }
-    .table tbody tr { background: rgba(255, 255, 255, 0.02); transition: 0.3s; }
-    .table tbody tr:hover { background: rgba(0, 212, 255, 0.08) !important; }
+    .table tbody tr { background: #000; transition: 0.2s; }
+    .table tbody tr:hover { background: #0a0a0a !important; }
     
+    /* Solid High-Contrast Colors */
     .table td { 
-        padding: 18px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); 
-        color: #ffffff !important; vertical-align: middle;
+        padding: 20px 15px; border-bottom: 1px solid #1a1a1a; 
+        color: #fff !important; vertical-align: middle;
+        font-weight: 500;
     }
 
-    /* Buttons & Status */
-    .status-paid { color: #00ff88 !important; font-weight: 800; font-size: 11px; letter-spacing: 0.5px; }
-    .status-unpaid { color: #ff4d4d !important; font-weight: 800; font-size: 11px; letter-spacing: 0.5px; }
+    .stu-name { color: #fff; font-weight: 700; font-size: 1.05rem; }
+    .class-tag { color: #888; font-size: 0.85rem; }
+
+    /* Neon Status Indicators */
+    .status-paid { color: #00ff88 !important; font-weight: 800; font-size: 12px; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+    .status-unpaid { color: #ff3e3e !important; font-weight: 800; font-size: 12px; text-shadow: 0 0 10px rgba(255,62,62,0.3); }
     
     .btn-collect {
-        background: #00d4ff; color: #000 !important; font-weight: 700; 
-        border-radius: 50px; border: none; padding: 8px 18px;
-        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3); transition: 0.3s;
+        background: #00d4ff; color: #000 !important; font-weight: 800; 
+        border-radius: 8px; border: none; padding: 10px 20px;
+        transition: 0.3s;
     }
-    .btn-collect:hover { transform: scale(1.05); background: #fff; }
+    .btn-collect:hover { background: #fff; transform: translateY(-2px); }
 
     .btn-history {
-        border: 1px solid rgba(255, 255, 255, 0.4); color: #fff !important;
-        border-radius: 50px; padding: 7px 18px; font-size: 0.85rem; transition: 0.3s;
+        background: #111; color: #aaa !important; border: 1px solid #333;
+        border-radius: 8px; padding: 9px 18px; font-size: 0.85rem; transition: 0.3s;
     }
-    .btn-history:hover { background: rgba(255,255,255,1); color: #000 !important; }
+    .btn-history:hover { background: #222; color: #fff !important; border-color: #555; }
 
-    /* Modal Styling */
+    /* Modal - Deep Black */
     .modal-content {
-        background: rgba(10, 18, 42, 0.95); backdrop-filter: blur(20px);
-        border: 1px solid rgba(0, 212, 255, 0.4); border-radius: 30px; color: #fff;
+        background: #000; border: 1px solid #333; border-radius: 20px; color: #fff;
     }
     .payment-option-card {
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 20px; padding: 25px 15px; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        background: #080808; border: 1px solid #222;
+        border-radius: 15px; padding: 30px 15px; transition: 0.3s; 
         cursor: pointer; text-align: center;
     }
     .payment-option-card:hover:not(.disabled) {
-        background: #00d4ff; color: #000; transform: translateY(-12px);
-        box-shadow: 0 15px 30px rgba(0, 212, 255, 0.4);
+        border-color: #00d4ff; background: #00d4ff; color: #000;
     }
-    .payment-option-card.disabled { opacity: 0.25; cursor: not-allowed; border: 1px dashed rgba(255,255,255,0.2); }
+    .payment-option-card.disabled { opacity: 0.15; cursor: not-allowed; grayscale: 1; }
 </style>
 
 <div class="container py-5">
     <?php if ($message): ?>
-        <div class="alert alert-success bg-success text-white border-0 rounded-4 mb-4 shadow-lg"><?php echo $message; ?></div>
+        <div class="alert alert-dark border-secondary text-info rounded-3 mb-4 shadow-lg"><?php echo $message; ?></div>
     <?php endif; ?>
 
     <div class="stylish-header-bar">
         <div>
-            <h2 class="black-title">Fees Management</h2>
-            <p class="text-info small mb-0 fw-bold">Academic Session: <?php echo date('F Y'); ?></p>
+            <h2 class="main-title">FEES PORTAL</h2>
+            <p class="text-secondary small mb-0 fw-bold">Current Period: <?php echo date('F Y'); ?></p>
         </div>
-        <div class="text-end">
-            <span class="badge bg-info text-dark px-4 py-2 rounded-pill fw-bold">Live Portal</span>
+        <div>
+            <span class="text-secondary small me-3">System Date: <?php echo date('d-m-Y'); ?></span>
         </div>
     </div>
 
     <div class="fees-card shadow-lg">
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th class="ps-4">Student Name</th>
+                        <th class="ps-4">Student Info</th>
                         <th>Class</th>
-                        <th>Admission Fee</th>
+                        <th>Admission</th>
                         <th>Monthly Fee</th>
-                        <th class="text-end pe-4">Actions</th>
+                        <th class="text-end pe-4">Control</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -135,24 +138,27 @@ include '../includes/header.php';
                     while ($s = $students->fetch()):
                     ?>
                     <tr>
-                        <td class="ps-4 fw-bold"><?php echo htmlspecialchars($s['name']); ?></td>
-                        <td><span class="opacity-75"><?php echo htmlspecialchars($s['class_name'] ?? 'No Class'); ?></span></td>
+                        <td class="ps-4">
+                            <div class="stu-name"><?php echo htmlspecialchars($s['name']); ?></div>
+                            <div class="text-secondary small">ID: #<?php echo $s['id']; ?></div>
+                        </td>
+                        <td><span class="class-tag"><?php echo htmlspecialchars($s['class_name'] ?? 'Unassigned'); ?></span></td>
                         <td>
                             <?php echo $s['has_admission'] > 0 
-                                ? '<span class="status-paid"><i class="bi bi-check-circle-fill"></i> PAID</span>' 
-                                : '<span class="status-unpaid"><i class="bi bi-exclamation-circle"></i> DUE</span>'; ?>
+                                ? '<span class="status-paid">PAID</span>' 
+                                : '<span class="status-unpaid">DUE</span>'; ?>
                         </td>
                         <td>
                             <?php echo $s['paid_this_month'] > 0 
-                                ? '<span class="status-paid"><i class="bi bi-check-circle-fill"></i> PAID</span>' 
-                                : '<span class="status-unpaid"><i class="bi bi-exclamation-circle"></i> DUE</span>'; ?>
+                                ? '<span class="status-paid">PAID</span>' 
+                                : '<span class="status-unpaid">DUE</span>'; ?>
                         </td>
                         <td class="text-end pe-4">
                             <button class="btn btn-collect btn-sm me-2" 
                                     onclick="openPaymentModal('<?php echo $s['id']; ?>', '<?php echo addslashes($s['name']); ?>', <?php echo $s['has_admission']; ?>, <?php echo $s['paid_this_month']; ?>)">
-                                Collect
+                                COLLECT
                             </button>
-                            <a href="receipts.php?student_id=<?php echo $s['id']; ?>" class="btn btn-sm btn-history">History</a>
+                            <a href="receipts.php?student_id=<?php echo $s['id']; ?>" class="btn btn-sm btn-history">LEDGER</a>
                         </td>
                     </tr>
                     <?php endwhile; ?>
@@ -166,8 +172,7 @@ include '../includes/header.php';
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body p-5 text-center">
-                <h3 class="fw-bold mb-1" id="modalStudentName">...</h3>
-                <p class="text-info small mb-4">Select the fee type to process</p>
+                <h3 class="fw-bold text-info mb-4" id="modalStudentName">...</h3>
                 
                 <div class="row g-3">
                     <div class="col-6">
@@ -175,8 +180,8 @@ include '../includes/header.php';
                             <input type="hidden" name="student_id" id="modal_sid_adm">
                             <input type="hidden" name="fee_type" value="Admission">
                             <div class="payment-option-card" id="cardAdmission" onclick="submitIfActive('formAdmission')">
-                                <div style="font-size: 40px;" class="mb-2">🎓</div>
-                                <div class="fw-bold">Admission</div>
+                                <div style="font-size: 35px;" class="mb-2">🎓</div>
+                                <div class="fw-bold">ADMISSION</div>
                                 <div class="small opacity-50">800 PKR</div>
                             </div>
                         </form>
@@ -186,14 +191,14 @@ include '../includes/header.php';
                             <input type="hidden" name="student_id" id="modal_sid_mon">
                             <input type="hidden" name="fee_type" value="Monthly">
                             <div class="payment-option-card" id="cardMonthly" onclick="submitIfActive('formMonthly')">
-                                <div style="font-size: 40px;" class="mb-2">📅</div>
-                                <div class="fw-bold">Monthly</div>
+                                <div style="font-size: 35px;" class="mb-2">📅</div>
+                                <div class="fw-bold">MONTHLY</div>
                                 <div class="small opacity-50">3000 PKR</div>
                             </div>
                         </form>
                     </div>
                 </div>
-                <button type="button" class="btn btn-link text-white-50 mt-4 text-decoration-none" data-bs-dismiss="modal">Close Window</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary mt-5 px-4" data-bs-dismiss="modal">CANCEL</button>
             </div>
         </div>
     </div>
@@ -201,26 +206,26 @@ include '../includes/header.php';
 
 <script>
 function openPaymentModal(id, name, hasAdm, hasMon) {
-    document.getElementById('modalStudentName').innerText = name;
+    document.getElementById('modalStudentName').innerText = name.toUpperCase();
     document.getElementById('modal_sid_adm').value = id;
     document.getElementById('modal_sid_mon').value = id;
 
     const cardAdm = document.getElementById('cardAdmission');
     if(hasAdm > 0) {
         cardAdm.classList.add('disabled');
-        cardAdm.innerHTML = '<div style="font-size: 40px;" class="mb-2">✅</div><div class="fw-bold">Already Paid</div>';
+        cardAdm.innerHTML = '<div style="font-size: 35px;" class="mb-2">✔️</div><div class="fw-bold">PAID</div>';
     } else {
         cardAdm.classList.remove('disabled');
-        cardAdm.innerHTML = '<div style="font-size: 40px;" class="mb-2">🎓</div><div class="fw-bold">Admission</div><div class="small opacity-50">800 PKR</div>';
+        cardAdm.innerHTML = '<div style="font-size: 35px;" class="mb-2">🎓</div><div class="fw-bold">ADMISSION</div><div class="small">800 PKR</div>';
     }
 
     const cardMon = document.getElementById('cardMonthly');
     if(hasMon > 0) {
         cardMon.classList.add('disabled');
-        cardMon.innerHTML = '<div style="font-size: 40px;" class="mb-2">✅</div><div class="fw-bold">Already Paid</div>';
+        cardMon.innerHTML = '<div style="font-size: 35px;" class="mb-2">✔️</div><div class="fw-bold">PAID</div>';
     } else {
         cardMon.classList.remove('disabled');
-        cardMon.innerHTML = '<div style="font-size: 40px;" class="mb-2">📅</div><div class="fw-bold">Monthly</div><div class="small opacity-50">3000 PKR</div>';
+        cardMon.innerHTML = '<div style="font-size: 35px;" class="mb-2">📅</div><div class="fw-bold">MONTHLY</div><div class="small">3000 PKR</div>';
     }
 
     new bootstrap.Modal(document.getElementById('paymentModal')).show();
@@ -229,10 +234,9 @@ function openPaymentModal(id, name, hasAdm, hasMon) {
 function submitIfActive(formId) {
     const form = document.getElementById(formId);
     if(!form.querySelector('.payment-option-card').classList.contains('disabled')) {
-        if(confirm("Process this payment now?")) {
+        if(confirm("Confirm Fee Collection?")) {
             const hiddenBtn = document.createElement('input');
-            hiddenBtn.type = 'hidden';
-            hiddenBtn.name = 'pay_fee';
+            hiddenBtn.type = 'hidden'; hiddenBtn.name = 'pay_fee';
             form.appendChild(hiddenBtn);
             form.submit();
         }
