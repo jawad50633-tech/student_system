@@ -13,7 +13,6 @@ if (isset($_POST['pay_fee'])) {
     $amount = ($fee_type == 'Admission') ? 800 : 3000;
     $receipt_number = 'REC-' . strtoupper(substr(md5(time()), 0, 6)) . rand(10, 99);
     $payment_date = date('Y-m-d');
-
     $stmt = $pdo->prepare("INSERT INTO fees (student_id, fee_type, amount, status, payment_date, receipt_number) VALUES (?, ?, ?, 'Paid', ?, ?)");
     if ($stmt->execute([$student_id, $fee_type, $amount, $payment_date, $receipt_number])) {
         $message = "Payment of $amount PKR recorded successfully!";
