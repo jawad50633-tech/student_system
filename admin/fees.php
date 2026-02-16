@@ -8,26 +8,16 @@ $current_year = date('Y');
 
 // Handle Fee Payment
 if (isset($_POST['pay_fee'])) {
-    $student_id = $_POST['student_id'];
-    $fee_type = $_POST['fee_type'];
-    $amount = ($fee_type == 'Admission') ? 800 : 3000;
-    $receipt_number = 'REC-' . strtoupper(substr(md5(time()), 0, 6)) . rand(10, 99);
-    $payment_date = date('Y-m-d');
+    $student_id = $_POST['student_id'];
+    $fee_type = $_POST['fee_type'];
+    $amount = ($fee_type == 'Admission') ? 800 : 3000;
+    $receipt_number = 'REC-' . strtoupper(substr(md5(time()), 0, 6)) . rand(10, 99);
+    $payment_date = date('Y-m-d');
 
-    $stmt = $pdo->prepare("INSERT INTO fees (student_id, fee_type, amount, status, payment_date, receipt_number) VALUES (?, ?, ?, 'Paid', ?, ?)");
-    if ($stmt->execute([$student_id, $fee_type, $amount, $payment_date, $receipt_number])) {
-        $message = "Payment of $amount PKR recorded successfully!";
-    }
-}
-
-// Handle Accidental Delete
-if (isset($_POST['delete_payment'])) {
-    $student_id = $_POST['student_id'];
-    // Deletes the most recent payment for this student to fix accidental clicks
-    $stmt = $pdo->prepare("DELETE FROM fees WHERE student_id = ? ORDER BY id DESC LIMIT 1");
-    if ($stmt->execute([$student_id])) {
-        $message = "Last payment record removed successfully.";
-    }
+    $stmt = $pdo->prepare("INSERT INTO fees (student_id, fee_type, amount, status, payment_date, receipt_number) VALUES (?, ?, ?, 'Paid', ?, ?)");
+    if ($stmt->execute([$student_id, $fee_type, $amount, $payment_date, $receipt_number])) {
+        $message = "Payment of $amount PKR recorded successfully!";
+    }
 }
 
 include '../includes/header.php';
@@ -37,215 +27,180 @@ include '../includes/header.php';
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
-    body { 
-        background: linear-gradient(rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.96)), url('../uploads/background.png');
-        background-size: cover; background-attachment: fixed; font-family: 'Inter', sans-serif; color: #fff;
-    }
-    
-    .stylish-header-bar {
-        background: #000; border: 1px solid #222; border-radius: 15px; padding: 25px; margin-bottom: 30px;
-        display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #00d4ff;
-    }
-    .main-title { color: #fff; font-weight: 900; font-size: 2rem; letter-spacing: -1px; margin: 0; }
+    body { 
+        background: linear-gradient(rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.96)), url('../uploads/background.png');
+        background-size: cover; background-attachment: fixed; font-family: 'Inter', sans-serif; color: #fff;
+    }
+    
+    .stylish-header-bar {
+        background: #000; border: 1px solid #222; border-radius: 15px; padding: 25px; margin-bottom: 30px;
+        display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #00d4ff;
+    }
+    .main-title { color: #fff; font-weight: 900; font-size: 2rem; letter-spacing: -1px; margin: 0; }
 
-    .fees-card { background: #000; border-radius: 20px; border: 1px solid #222; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
+    .fees-card { background: #000; border-radius: 20px; border: 1px solid #222; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.8); }
 
-    .table { margin-bottom: 0; background: #000 !important; border-collapse: separate; border-spacing: 0 5px; }
-    .table thead th { 
-        background: #111; color: #00d4ff !important; padding: 20px; border: none; 
-        font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;
-    }
+    .table { margin-bottom: 0; background: #000 !important; border-collapse: separate; border-spacing: 0 5px; }
+    .table thead th { 
+        background: #111; color: #00d4ff !important; padding: 20px; border: none; 
+        font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;
+    }
 
-    .col-light-data { 
-        background: #f8f9fa !important; color: #000 !important; 
-        border-bottom: 1px solid #dee2e6 !important;
-    }
-    .stu-name-black { color: #000 !important; font-weight: 800; font-size: 1.1rem; display: block; }
-    .class-tag-black { color: #444 !important; font-weight: 700; font-size: 0.9rem; background: #e9ecef; padding: 2px 8px; border-radius: 4px; }
+    /* STUDENT INFO & CLASS (BLACK TEXT AREA) */
+    .col-light-data { 
+        background: #f8f9fa !important; color: #000 !important; 
+        border-bottom: 1px solid #dee2e6 !important;
+    }
+    .stu-name-black { color: #000 !important; font-weight: 800; font-size: 1.1rem; display: block; }
+    .class-tag-black { color: #444 !important; font-weight: 700; font-size: 0.9rem; background: #e9ecef; padding: 2px 8px; border-radius: 4px; }
 
-    /* STATUS COLORS */
-    .status-paid-box { 
-        color: #064e3b !important; background: #d1fae5; 
-        padding: 6px 12px; border-radius: 8px; border: 1px solid #065f46;
-        font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;
-    }
-    .status-unpaid-box { 
-        color: #7f1d1d !important; background: #fee2e2; 
-        padding: 6px 12px; border-radius: 8px; border: 1px solid #991b1b;
-        font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;
-    }
+    /* STATUS COLORS & ICONS */
+    .status-paid-box { 
+        color: #065f46 !important; /* Darker Emerald Green */
+        background: rgba(16, 185, 129, 0.1); 
+        padding: 6px 12px; border-radius: 8px; border: 1px solid #065f46;
+        font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .status-unpaid-box { 
+        color: #991b1b !important; /* Darker Deep Red */
+        background: rgba(239, 68, 68, 0.1); 
+        padding: 6px 12px; border-radius: 8px; border: 1px solid #991b1b;
+        font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; gap: 6px;
+    }
 
-    /* BUTTONS */
-    .btn-collect { background: #00d4ff; color: #000 !important; font-weight: 800; border-radius: 10px; border: none; padding: 10px 20px; transition: 0.3s; }
-    .btn-collect:hover { background: #fff; transform: scale(1.05); }
-    
-    .btn-history { background: #1a1a1a; color: #00d4ff !important; border: 1px solid #333; border-radius: 10px; padding: 10px 15px; }
-    .btn-delete { background: #1a1a1a; color: #ff4d4d !important; border: 1px solid #333; border-radius: 10px; padding: 10px 15px; transition: 0.3s; }
-    .btn-delete:hover { background: #ff4d4d; color: #fff !important; }
+    /* ACTION BUTTONS */
+    .btn-collect { 
+        background: #00d4ff; color: #000 !important; font-weight: 800; 
+        border-radius: 10px; border: none; padding: 10px 20px; transition: 0.3s;
+    }
+    .btn-collect:hover { background: #fff; transform: scale(1.05); }
+    
+    .btn-history { 
+        background: #1a1a1a; color: #00d4ff !important; border: 1px solid #333;
+        border-radius: 10px; padding: 10px 15px; transition: 0.3s;
+    }
+    .btn-history:hover { background: #00d4ff; color: #000 !important; }
 
-    /* MODAL OPTIONS */
-    .option-card { transition: 0.3s; border: 1px solid #333; border-radius: 15px; cursor: pointer; background: #000; }
-    .option-card:hover:not(.disabled) { border-color: #00d4ff; transform: translateY(-5px); }
-    .option-card.disabled { opacity: 0.3; cursor: not-allowed; background: #111; }
+    /* MODAL */
+    .modal-content { background: #0b0f19; border: 1px solid #00d4ff; border-radius: 25px; color: #fff; }
 </style>
 
 <div class="container py-5">
-    <?php if ($message): ?>
-        <div class="alert alert-info border-0 shadow-lg rounded-4 mb-4"><?php echo $message; ?></div>
-    <?php endif; ?>
+    <div class="stylish-header-bar shadow-lg">
+        <div>
+            <h2 class="main-title"><i class="fa-solid fa-vault text-info me-2"></i>FEES MANAGER</h2>
+            <p class="text-secondary small mb-0">Record and track student payments for <?php echo date('F Y'); ?></p>
+        </div>
+    </div>
 
-    <div class="stylish-header-bar shadow-lg">
-        <div>
-            <h2 class="main-title"><i class="fa-solid fa-vault text-info me-2"></i>FEES MANAGER</h2>
-            <p class="text-secondary small mb-0">Record and track student payments for <?php echo date('F Y'); ?></p>
-        </div>
-    </div>
-
-    <div class="fees-card">
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th class="ps-4">Student Details</th>
-                        <th>Class</th>
-                        <th>Admission Fee</th>
-                        <th>Monthly Tuition</th>
-                        <th class="text-end pe-4">System Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $students = $pdo->prepare("
-                        SELECT s.id, s.name, c.class_name,
-                        (SELECT COUNT(*) FROM fees WHERE student_id = s.id AND fee_type = 'Admission') as has_admission,
-                        (SELECT COUNT(*) FROM fees WHERE student_id = s.id AND fee_type = 'Monthly' 
-                         AND MONTH(payment_date) = ? AND YEAR(payment_date) = ?) as paid_this_month
-                        FROM students s 
-                        LEFT JOIN classes c ON s.class_id = c.id
-                    ");
-                    $students->execute([$current_month, $current_year]);
-                    while ($s = $students->fetch()):
-                    ?>
-                    <tr>
-                        <td class="ps-4 col-light-data">
-                            <span class="stu-name-black"><i class="fa-solid fa-circle-user me-2"></i><?php echo htmlspecialchars($s['name']); ?></span>
-                            <small class="text-muted fw-bold">REF: #STU-<?php echo $s['id']; ?></small>
-                        </td>
-                        <td class="col-light-data">
-                            <span class="class-tag-black"><?php echo htmlspecialchars($s['class_name'] ?? 'General'); ?></span>
-                        </td>
-                        <td>
-                            <?php if ($s['has_admission'] > 0): ?>
-                                <div class="status-paid-box"><i class="fa-solid fa-check-double"></i> PAID</div>
-                            <?php else: ?>
-                                <div class="status-unpaid-box"><i class="fa-solid fa-circle-xmark"></i> DUE</div>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?php if ($s['paid_this_month'] > 0): ?>
-                                <div class="status-paid-box"><i class="fa-solid fa-shield-check"></i> PAID</div>
-                            <?php else: ?>
-                                <div class="status-unpaid-box"><i class="fa-solid fa-clock-rotate-left"></i> DUE</div>
-                            <?php endif; ?>
-                        </td>
-                        <td class="text-end pe-4">
-                            <button class="btn btn-collect btn-sm me-1" onclick="openPaymentModal('<?php echo $s['id']; ?>', '<?php echo addslashes($s['name']); ?>', <?php echo $s['has_admission']; ?>, <?php echo $s['paid_this_month']; ?>)">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                            <a href="receipts.php?student_id=<?php echo $s['id']; ?>" class="btn btn-sm btn-history me-1">
-                                <i class="fa-solid fa-list-ul"></i>
-                            </a>
-                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete the last payment for this student? This cannot be undone.');">
-                                <input type="hidden" name="student_id" value="<?php echo $s['id']; ?>">
-                                <button type="submit" name="delete_payment" class="btn btn-sm btn-delete">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <div class="fees-card">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Student Details</th>
+                        <th>Class</th>
+                        <th>Admission Fee</th>
+                        <th>Monthly Tuition</th>
+                        <th class="text-end pe-4">System Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $students = $pdo->prepare("
+                        SELECT s.id, s.name, c.class_name,
+                        (SELECT COUNT(*) FROM fees WHERE student_id = s.id AND fee_type = 'Admission') as has_admission,
+                        (SELECT COUNT(*) FROM fees WHERE student_id = s.id AND fee_type = 'Monthly' 
+                         AND MONTH(payment_date) = ? AND YEAR(payment_date) = ?) as paid_this_month
+                        FROM students s 
+                        LEFT JOIN classes c ON s.class_id = c.id
+                    ");
+                    $students->execute([$current_month, $current_year]);
+                    while ($s = $students->fetch()):
+                    ?>
+                    <tr>
+                        <td class="ps-4 col-light-data">
+                            <span class="stu-name-black"><i class="fa-solid fa-circle-user me-2"></i><?php echo htmlspecialchars($s['name']); ?></span>
+                            <small class="text-muted fw-bold">REF: #STU-<?php echo $s['id']; ?></small>
+                        </td>
+                        <td class="col-light-data">
+                            <span class="class-tag-black"><?php echo htmlspecialchars($s['class_name'] ?? 'General'); ?></span>
+                        </td>
+                        <td>
+                            <?php if ($s['has_admission'] > 0): ?>
+                                <div class="status-paid-box"><i class="fa-solid fa-circle-check"></i> PAID</div>
+                            <?php else: ?>
+                                <div class="status-unpaid-box"><i class="fa-solid fa-circle-xmark"></i> DUE</div>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($s['paid_this_month'] > 0): ?>
+                                <div class="status-paid-box"><i class="fa-solid fa-shield-check"></i> PAID</div>
+                            <?php else: ?>
+                                <div class="status-unpaid-box"><i class="fa-solid fa-clock-rotate-left"></i> DUE</div>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-end pe-4">
+                            <button class="btn btn-collect btn-sm me-2" onclick="openPaymentModal('<?php echo $s['id']; ?>', '<?php echo addslashes($s['name']); ?>', <?php echo $s['has_admission']; ?>, <?php echo $s['paid_this_month']; ?>)">
+                                <i class="fa-solid fa-hand-holding-dollar"></i> Collect
+                            </button>
+                            <a href="receipts.php?student_id=<?php echo $s['id']; ?>" class="btn btn-sm btn-history">
+                                <i class="fa-solid fa-list-ul"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-info">
-            <div class="modal-body p-5 text-center">
-                <h3 class="fw-bold text-white mb-4" id="modalStudentName">...</h3>
-                <div class="row g-3">
-                    <div class="col-6">
-                        <div id="adm_option" class="p-4 option-card">
-                            <form method="POST" id="formAdmission">
-                                <input type="hidden" name="student_id" id="modal_sid_adm">
-                                <input type="hidden" name="fee_type" value="Admission">
-                                <div id="adm_icon_box">
-                                    <i class="fa-solid fa-graduation-cap fa-2x mb-2 text-info"></i><br>
-                                    <b>Admission</b>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div id="mon_option" class="p-4 option-card">
-                            <form method="POST" id="formMonthly">
-                                <input type="hidden" name="student_id" id="modal_sid_mon">
-                                <input type="hidden" name="fee_type" value="Monthly">
-                                <div id="mon_icon_box">
-                                    <i class="fa-solid fa-calendar-check fa-2x mb-2 text-info"></i><br>
-                                    <b>Monthly Fee</b>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn btn-link text-secondary mt-4" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-body p-5 text-center">
+                <i class="fa-solid fa-circle-dollar-to-slot fa-3x text-info mb-3"></i>
+                <h3 class="fw-bold text-white mb-4" id="modalStudentName">STUDENT NAME</h3>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <form method="POST" id="formAdmission">
+                            <input type="hidden" name="student_id" id="modal_sid_adm">
+                            <input type="hidden" name="fee_type" value="Admission">
+                            <div class="p-4 border border-secondary rounded-4 bg-dark text-white" style="cursor:pointer;" onclick="submitIfActive('formAdmission')">
+                                <i class="fa-solid fa-graduation-cap fa-2x mb-2 text-info"></i><br><b>Admission</b>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-6">
+                        <form method="POST" id="formMonthly">
+                            <input type="hidden" name="student_id" id="modal_sid_mon">
+                            <input type="hidden" name="fee_type" value="Monthly">
+                            <div class="p-4 border border-secondary rounded-4 bg-dark text-white" style="cursor:pointer;" onclick="submitIfActive('formMonthly')">
+                                <i class="fa-solid fa-calendar-check fa-2x mb-2 text-info"></i><br><b>Monthly Fee</b>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
 function openPaymentModal(id, name, hasAdm, hasMon) {
-    document.getElementById('modalStudentName').innerText = name.toUpperCase();
-    document.getElementById('modal_sid_adm').value = id;
-    document.getElementById('modal_sid_mon').value = id;
-
-    // Reset and Disable Admission if already paid
-    const admBox = document.getElementById('adm_option');
-    if (hasAdm > 0) {
-        admBox.classList.add('disabled');
-        admBox.onclick = null;
-        document.getElementById('adm_icon_box').innerHTML = '<i class="fa-solid fa-lock fa-2x mb-2 text-muted"></i><br><b class="text-muted">Paid</b>';
-    } else {
-        admBox.classList.remove('disabled');
-        admBox.onclick = function() { submitIfActive('formAdmission'); };
-        document.getElementById('adm_icon_box').innerHTML = '<i class="fa-solid fa-graduation-cap fa-2x mb-2 text-info"></i><br><b>Admission</b>';
-    }
-
-    // Reset and Disable Monthly if already paid
-    const monBox = document.getElementById('mon_option');
-    if (hasMon > 0) {
-        monBox.classList.add('disabled');
-        monBox.onclick = null;
-        document.getElementById('mon_icon_box').innerHTML = '<i class="fa-solid fa-lock fa-2x mb-2 text-muted"></i><br><b class="text-muted">Paid</b>';
-    } else {
-        monBox.classList.remove('disabled');
-        monBox.onclick = function() { submitIfActive('formMonthly'); };
-        document.getElementById('mon_icon_box').innerHTML = '<i class="fa-solid fa-calendar-check fa-2x mb-2 text-info"></i><br><b>Monthly Fee</b>';
-    }
-
-    new bootstrap.Modal(document.getElementById('paymentModal')).show();
+    document.getElementById('modalStudentName').innerText = name.toUpperCase();
+    document.getElementById('modal_sid_adm').value = id;
+    document.getElementById('modal_sid_mon').value = id;
+    new bootstrap.Modal(document.getElementById('paymentModal')).show();
 }
 
 function submitIfActive(formId) {
-    if(confirm("Confirm this payment collection?")) {
-        const f = document.getElementById(formId);
-        const b = document.createElement('input'); b.type='hidden'; b.name='pay_fee';
-        f.appendChild(b); f.submit();
-    }
+    const f = document.getElementById(formId);
+    if(confirm("Collect Fee Payment?")) {
+        const b = document.createElement('input'); b.type='hidden'; b.name='pay_fee';
+        f.appendChild(b); f.submit();
+    }
 }
 </script>
 
