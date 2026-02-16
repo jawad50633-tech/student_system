@@ -1,5 +1,5 @@
 <?php
-echo "Receipts page loaded";
+// echo "Receipts page loaded";
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -7,9 +7,9 @@ error_reporting(E_ALL);
 require_once '../config.php';
 require_once '../includes/auth_check.php';
 
-if (!isset($_GET['student_id']) || empty($_GET['student_id'])) {
-    die("Invalid access.");
-}
+// if (!isset($_GET['student_id']) || empty($_GET['student_id'])) {
+//     die("Invalid access.");
+// }
 
 $student_id = (int) $_GET['student_id'];
 $receipt_id = isset($_GET['print']) ? (int) $_GET['print'] : null;
