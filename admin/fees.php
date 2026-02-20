@@ -10,29 +10,28 @@ $current_year = date('Y');
 if (isset($_POST['pay_fee'])) {
     $student_id = $_POST['student_id'];
     $fee_type = $_POST['fee_type'];
-    $base_amount = ($fee_type == 'Admission') ? 800 : 3000;
+$base_amount = ($fee_type == 'Admission') ? 800 : 3000;
 
-    $base_amount = ($fee_type == 'Admission') ? 800 : 3000;
+// Detect correct dropdown
+if ($fee_type == 'Admission') {
+    $discount_percent = isset($_POST['discount_option_adm'])
+        ? (int) $_POST['discount_option_adm']
+        : 0;
+} else {
+    $discount_percent = isset($_POST['discount_option_mon'])
+        ? (int) $_POST['discount_option_mon']
+        : 0;
+}
 
-// Get selected discount percentage
-$discount_percent = isset($_POST['discount_option']) 
-    ? (int) $_POST['discount_option'] 
-    : 0;
-
-// Safety guard (only allow these 3 values)
+// Allow only valid values
 if (!in_array($discount_percent, [0, 20, 100])) {
     $discount_percent = 0;
 }
 
-// Calculate discount
+// Calculate
 $discount = ($base_amount * $discount_percent) / 100;
 $final_amount = $base_amount - $discount;
 
-// Checkbox sends value only if checked
-$full_discount = isset($_POST['full_discount']) && $_POST['full_discount'] == 1;
-
-$discount = 0;
-$final_amount = $base_amount;
     // Safety check: Prevent duplicate entry
     $check = $pdo->prepare("SELECT COUNT(*) FROM fees WHERE student_id = ? AND fee_type = ? AND (fee_type = 'Admission' OR (MONTH(payment_date) = ? AND YEAR(payment_date) = ?))");
     $check->execute([$student_id, $fee_type, $current_month, $current_year]);
@@ -49,7 +48,8 @@ VALUES (?, ?, ?, ?, 'Paid', ?, ?)");
 $stmt1 = $pdo->prepare("INSERT INTO fees_backup 
 (student_id, fee_type, amount, discount, status, payment_date, receipt_number) 
 VALUES (?, ?, ?, ?, 'Paid', ?, ?)");
-
+        echo "Base: $base_amount | Percent: $discount_percent | Discount: $discount | Final: $final_amount";
+exit;
         if ($stmt->execute([$student_id, $fee_type, $final_amount, $discount, $payment_date, $receipt_number])) {
             $stmt1->execute([$student_id, $fee_type, $final_amount, $discount, $payment_date, $receipt_number]);
             $message = "Payment of $final_amount PKR recorded successfully!";
@@ -213,15 +213,11 @@ include '../includes/header.php';
                         <form method="POST" id="formAdmission">
                             <input type="hidden" name="student_id" id="modal_sid_adm">
                             <input type="hidden" name="fee_type" value="Admission">
-                            
-                            <div class="mb-3 text-start">
-                                <label class="fw-bold text-warning mb-2 d-block">Discount Option</label>
-                                <select name="discount_option" class="form-select">
-                                    <option value="0" selected>Normal Fees</option>
-                                    <option value="20">20% Discount</option>
-                                    <option value="100">100% Scholarship</option>
-                                </select>
-                            </div>
+                            <select name="discount_option_adm" class="form-select">
+                                <option value="0" selected>Normal Fees</option>
+                                <option value="20">20% Discount</option>
+                                <option value="100">100% Scholarship</option>
+                            </select>
                             <div id="cardAdmission" class="payment-card p-4 rounded-4 bg-dark text-white" onclick="submitIfActive('formAdmission', 'cardAdmission')">
                                 <i class="fa-solid fa-graduation-cap fa-2x mb-2 text-info"></i><br>
                                 <span id="textAdmission" class="fw-bold">Admission</span>
@@ -233,14 +229,11 @@ include '../includes/header.php';
                             <input type="hidden" name="student_id" id="modal_sid_mon">
                             <input type="hidden" name="fee_type" value="Monthly">
                             
-                            <div class="mb-3 text-start">
-                                <label class="fw-bold text-warning mb-2 d-block">Discount Option</label>
-                                <select name="discount_option" class="form-select">
-                                    <option value="0" selected>Normal Fees</option>
-                                    <option value="20">20% Discount</option>
-                                    <option value="100">100% Scholarship</option>
-                                </select>
-                            </div>
+                            <select name="discount_option_mon" class="form-select">
+                                <option value="0" selected>Normal Fees</option>
+                                <option value="20">20% Discount</option>
+                                <option value="100">100% Scholarship</option>
+                            </select>
                             <div id="cardMonthly" class="payment-card p-4 rounded-4 bg-dark text-white" onclick="submitIfActive('formMonthly', 'cardMonthly')">
                                 <i class="fa-solid fa-calendar-check fa-2x mb-2 text-info"></i><br>
                                 <span id="textMonthly" class="fw-bold">Monthly Fee</span>
