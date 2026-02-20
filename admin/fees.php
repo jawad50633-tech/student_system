@@ -48,8 +48,7 @@ VALUES (?, ?, ?, ?, 'Paid', ?, ?)");
 $stmt1 = $pdo->prepare("INSERT INTO fees_backup 
 (student_id, fee_type, amount, discount, status, payment_date, receipt_number) 
 VALUES (?, ?, ?, ?, 'Paid', ?, ?)");
-        echo "Base: $base_amount | Percent: $discount_percent | Discount: $discount | Final: $final_amount";
-exit;
+        
         if ($stmt->execute([$student_id, $fee_type, $final_amount, $discount, $payment_date, $receipt_number])) {
             $stmt1->execute([$student_id, $fee_type, $final_amount, $discount, $payment_date, $receipt_number]);
             $message = "Payment of $final_amount PKR recorded successfully!";
