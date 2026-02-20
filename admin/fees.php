@@ -35,7 +35,12 @@ if ($full_discount) {
         $stmt = $pdo->prepare("INSERT INTO fees 
 (student_id, fee_type, amount, discount, status, payment_date, receipt_number) 
 VALUES (?, ?, ?, ?, 'Paid', ?, ?)");
+
+$stmt1 = $pdo->prepare("INSERT INTO fees_backup 
+(student_id, fee_type, amount, discount, status, payment_date, receipt_number) 
+VALUES (?, ?, ?, ?, 'Paid', ?, ?)");
         if ($stmt->execute([$student_id, $fee_type, $amount, $discount, $payment_date, $receipt_number])) {
+            $stmt1->execute([$student_id, $fee_type, $amount, $discount, $payment_date, $receipt_number]);
             $message = "Payment of $amount PKR recorded successfully!";
         }
     } else {
