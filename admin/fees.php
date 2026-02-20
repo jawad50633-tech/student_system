@@ -10,7 +10,42 @@ $current_year = date('Y');
 if (isset($_POST['pay_fee'])) {
     $student_id = $_POST['student_id'];
     $fee_type = $_POST['fee_type'];
-$base_amount = ($fee_type == 'Admission') ? 800 : 3000;
+
+    $student_stmt = $pdo->prepare("
+    SELECT c.class_name 
+    FROM students s
+    LEFT JOIN classes c ON s.class_id = c.id
+    WHERE s.id = ?
+");
+$student_stmt->execute([$student_id]);
+$student_data = $student_stmt->fetch();
+
+$class_name = $student_data['class_name'] ?? '';
+
+if ($fee_type == 'Admission') {
+    $base_amount = 800;
+} else {
+
+    switch (strtolower($class_name)) {
+        case 'ai':
+        case 'ai class':
+            $base_amount = 3000;
+            break;
+
+        case 'python':
+        case 'python class':
+            $base_amount = 4000;
+            break;
+
+        case 'cybersecurity':
+        case 'cybersecurity class':
+            $base_amount = 5000;
+            break;
+
+        default:
+            $base_amount = 3000; // fallback
+    }
+}
 
 // Detect correct dropdown
 if ($fee_type == 'Admission') {
