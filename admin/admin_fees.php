@@ -5,10 +5,10 @@ require_once '../includes/auth_check.php';
 
 
 /* =========================
-   FETCH TOTAL DATA
+   FETCH TOTAL DATA FROM fees TABLE
    ========================= */
 
-// Total Collected (after discount)
+// Total Collected (sum of amount)
 $total_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees");
 $total_collected = $total_stmt->fetch()['total'] ?? 0;
 
@@ -21,14 +21,14 @@ $monthly_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees WHERE fee_typ
 $total_monthly = $monthly_stmt->fetch()['total'] ?? 0;
 
 // Total Discounts Given
-$discount_stmt = $pdo->query("SELECT SUM(discount_amount) as total FROM fees");
+$discount_stmt = $pdo->query("SELECT SUM(discount) as total FROM fees");
 $total_discount = $discount_stmt->fetch()['total'] ?? 0;
 
-// Total Records
+// Total Transactions
 $count_stmt = $pdo->query("SELECT COUNT(*) as total FROM fees");
 $total_transactions = $count_stmt->fetch()['total'] ?? 0;
 
-// Net Income (same as collected if amount already reduced)
+// Net Income
 $net_income = $total_collected;
 
 ?>
@@ -45,7 +45,7 @@ $net_income = $total_collected;
         }
 
         h1 {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         .grid {
@@ -63,12 +63,12 @@ $net_income = $total_collected;
         }
 
         .card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-4px);
         }
 
         .card h2 {
             margin: 0 0 10px;
-            font-size: 16px;
+            font-size: 15px;
             color: #777;
         }
 
@@ -78,7 +78,7 @@ $net_income = $total_collected;
             color: #2c3e50;
         }
 
-        .footer-note {
+        .note {
             margin-top: 40px;
             font-size: 13px;
             color: #888;
@@ -87,40 +87,40 @@ $net_income = $total_collected;
         .hidden-tag {
             color: red;
             font-size: 14px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
 
 <h1>🔒 Total Fees Audit Dashboard</h1>
-<div class="hidden-tag">Hidden Page - Admin Access Only</div>
+<div class="hidden-tag">Hidden Page – Admin Access Only</div>
 
 <div class="grid">
 
     <div class="card">
         <h2>Total Collected</h2>
-        <div class="amount">Rs. <?php echo number_format($total_collected); ?></div>
+        <div class="amount">Rs. <?php echo number_format($total_collected, 2); ?></div>
     </div>
 
     <div class="card">
         <h2>Total Admission Fees</h2>
-        <div class="amount">Rs. <?php echo number_format($total_admission); ?></div>
+        <div class="amount">Rs. <?php echo number_format($total_admission, 2); ?></div>
     </div>
 
     <div class="card">
         <h2>Total Monthly Fees</h2>
-        <div class="amount">Rs. <?php echo number_format($total_monthly); ?></div>
+        <div class="amount">Rs. <?php echo number_format($total_monthly, 2); ?></div>
     </div>
 
     <div class="card">
         <h2>Total Discounts Given</h2>
-        <div class="amount">Rs. <?php echo number_format($total_discount); ?></div>
+        <div class="amount">Rs. <?php echo number_format($total_discount, 2); ?></div>
     </div>
 
     <div class="card">
         <h2>Net Income</h2>
-        <div class="amount">Rs. <?php echo number_format($net_income); ?></div>
+        <div class="amount">Rs. <?php echo number_format($net_income, 2); ?></div>
     </div>
 
     <div class="card">
@@ -130,7 +130,7 @@ $net_income = $total_collected;
 
 </div>
 
-<div class="footer-note">
+<div class="note">
     Generated on: <?php echo date("d M Y - h:i A"); ?>
 </div>
 
