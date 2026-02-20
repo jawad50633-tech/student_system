@@ -9,23 +9,23 @@ require_once '../includes/auth_check.php';
    ========================= */
 
 // Total Collected (sum of amount)
-$total_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees");
+$total_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees_backup");
 $total_collected = $total_stmt->fetch()['total'] ?? 0;
 
 // Total Admission Fees
-$admission_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees WHERE fee_type = 'Admission'");
+$admission_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees_backup WHERE fee_type = 'Admission'");
 $total_admission = $admission_stmt->fetch()['total'] ?? 0;
 
 // Total Monthly Fees
-$monthly_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees WHERE fee_type = 'Monthly'");
+$monthly_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees_backup WHERE fee_type = 'Monthly'");
 $total_monthly = $monthly_stmt->fetch()['total'] ?? 0;
 
 // Total Discounts Given
-$discount_stmt = $pdo->query("SELECT SUM(discount) as total FROM fees");
+$discount_stmt = $pdo->query("SELECT SUM(discount) as total FROM fees_backup");
 $total_discount = $discount_stmt->fetch()['total'] ?? 0;
 
 // Total Transactions
-$count_stmt = $pdo->query("SELECT COUNT(*) as total FROM fees");
+$count_stmt = $pdo->query("SELECT COUNT(*) as total FROM fees_backup");
 $total_transactions = $count_stmt->fetch()['total'] ?? 0;
 
 // Net Income
