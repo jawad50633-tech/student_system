@@ -1,37 +1,31 @@
 <?php
 session_start();
-require 'config.php';
+require_once '../config.php';
+require_once '../includes/auth_check.php';
 
-/* =========================
-   SIMPLE ADMIN PROTECTION
-   ========================= */
-if (!isset($_SESSION['admin'])) {
-    header("Location: login.php");
-    exit();
-}
 
 /* =========================
    FETCH TOTAL DATA
    ========================= */
 
 // Total Collected (after discount)
-$total_stmt = $pdo->query("SELECT SUM(amount) as total FROM payments");
+$total_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees");
 $total_collected = $total_stmt->fetch()['total'] ?? 0;
 
 // Total Admission Fees
-$admission_stmt = $pdo->query("SELECT SUM(amount) as total FROM payments WHERE fee_type = 'Admission'");
+$admission_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees WHERE fee_type = 'Admission'");
 $total_admission = $admission_stmt->fetch()['total'] ?? 0;
 
 // Total Monthly Fees
-$monthly_stmt = $pdo->query("SELECT SUM(amount) as total FROM payments WHERE fee_type = 'Monthly'");
+$monthly_stmt = $pdo->query("SELECT SUM(amount) as total FROM fees WHERE fee_type = 'Monthly'");
 $total_monthly = $monthly_stmt->fetch()['total'] ?? 0;
 
 // Total Discounts Given
-$discount_stmt = $pdo->query("SELECT SUM(discount_amount) as total FROM payments");
+$discount_stmt = $pdo->query("SELECT SUM(discount_amount) as total FROM fees");
 $total_discount = $discount_stmt->fetch()['total'] ?? 0;
 
 // Total Records
-$count_stmt = $pdo->query("SELECT COUNT(*) as total FROM payments");
+$count_stmt = $pdo->query("SELECT COUNT(*) as total FROM fees");
 $total_transactions = $count_stmt->fetch()['total'] ?? 0;
 
 // Net Income (same as collected if amount already reduced)
