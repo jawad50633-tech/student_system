@@ -116,7 +116,7 @@
     <div class="container-fluid px-4">
         <a class="navbar-brand d-flex align-items-center" href="dashboard.php">
             <img src="../uploads/Logo_Academy.png" class="header-logo" alt="Logo">
-            <span style="color: #000; font-weight: 800; letter-spacing: -1px;">Admin Panel</span>
+            <span style="color: #000; font-weight: 800; letter-spacing: -1px;">ADMIN PANEL</span>
         </a>
 
         <div class="academy-center-title d-none d-lg-block">
