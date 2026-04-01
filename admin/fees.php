@@ -23,7 +23,7 @@ $student_data = $student_stmt->fetch();
 $class_name = $student_data['class_name'] ?? '';
 
 if ($fee_type == 'Admission') {
-    $base_amount = 800;
+    $base_amount = 1000;
 } else {
 
     switch (strtolower($class_name)) {
