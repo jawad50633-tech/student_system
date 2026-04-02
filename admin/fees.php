@@ -59,7 +59,7 @@ if ($fee_type == 'Admission') {
 }
 
 // Allow only valid values
-if (!in_array($discount_percent, [0, 20, 100])) {
+if (!in_array($discount_percent, [0, 20, 50, 100])) {
     $discount_percent = 0;
 }
 
@@ -250,6 +250,7 @@ include '../includes/header.php';
                             <select name="discount_option_adm" class="form-select">
                                 <option value="0" selected>Normal Fees</option>
                                 <option value="20">20% Discount</option>
+                                <option value="50">50% Scholarship</option>
                                 <option value="100">100% Scholarship</option>
                             </select>
                             <div id="cardAdmission" class="payment-card p-4 rounded-4 bg-dark text-white" onclick="submitIfActive('formAdmission', 'cardAdmission')">
