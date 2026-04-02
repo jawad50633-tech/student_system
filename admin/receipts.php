@@ -30,7 +30,7 @@ if ($receipt_id) {
 
     if (!$r) die("Receipt ID #$receipt_id not found.");
 
-    $copies = ['Office Copy', 'Student Copy', 'Teacher Copy'];
+    $copies = ['Office Copy', 'Teacher Copy', 'Student Copy'];
     ?>
     <!DOCTYPE html>
     <html lang="en">
